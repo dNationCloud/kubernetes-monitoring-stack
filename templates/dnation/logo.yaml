@@ -1,0 +1,27 @@
+#  Copyright 2020 The K8s-m8g-stack Authors. All Rights Reserved.
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#      http://www.apache.org/licenses/LICENSE-2.0
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dnation-logo
+  namespace: {{ $.Release.Namespace }}
+data:
+  dnation.svg: "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<!-- Generator: Adobe
+    Illustrator 24.2.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->\n<svg
+    version=\"1.1\" id=\"Layer_1\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"
+    x=\"0px\" y=\"0px\"\n\t viewBox=\"0 0 223.96 188.02\" style=\"enable-background:new
+    0 0 223.96 188.02;\" xml:space=\"preserve\">\n<style type=\"text/css\">\n\t.st0{fill:#E61F2E;}\n\t.st1{fill:#F4790D;}\n\t.st2{fill:#248431;}\n\t.st3{fill:#D6D7D8;}\n</style>\n<g>\n\t<path
+    id=\"Rectangle_3_2_\" class=\"st0\" d=\"M186.92,76.65L186.92,76.65c-18.68,0-33.82-15.14-33.82-33.82l0,0\n\t\tc0-18.68,15.14-33.82,33.82-33.82l0,0c18.68,0,33.82,15.14,33.82,33.82l0,0C220.74,61.51,205.6,76.65,186.92,76.65z\"/>\n\t<path
+    id=\"Rectangle_4_2_\" class=\"st1\" d=\"M111.75,76.65L111.75,76.65c-18.68,0-33.82-15.14-33.82-33.82l0,0\n\t\tc0-18.68,15.14-33.82,33.82-33.82l0,0c18.68,0,33.82,15.14,33.82,33.82l0,0C145.57,61.51,130.43,76.65,111.75,76.65z\"/>\n\t<path
+    id=\"Rectangle_5_2_\" class=\"st2\" d=\"M36.58,76.65L36.58,76.65c-18.68,0-33.82-15.14-33.82-33.82l0,0\n\t\tc0-18.68,15.14-33.82,33.82-33.82l0,0c18.68,0,33.82,15.14,33.82,33.82l0,0C70.4,61.51,55.26,76.65,36.58,76.65z\"/>\n</g>\n<path
+    class=\"st3\" d=\"M101.92,104.25v78.93h-16.8v-6.99c-4.36,5.26-10.67,7.89-18.94,7.89c-5.71,0-10.88-1.28-15.5-3.83\n\tc-4.62-2.55-8.25-6.2-10.88-10.94c-2.63-4.74-3.95-10.22-3.95-16.46c0-6.24,1.31-11.73,3.95-16.46c2.63-4.74,6.26-8.38,10.88-10.94\n\tc4.62-2.55,9.79-3.83,15.5-3.83c7.74,0,13.79,2.44,18.15,7.33v-24.69H101.92zM80.27,165.08c2.93-3.04,4.4-7.12,4.4-12.23\n\tc0-5.11-1.47-9.19-4.4-12.23c-2.93-3.04-6.62-4.57-11.05-4.57c-4.51,0-8.23,1.52-11.16,4.57c-2.93,3.04-4.4,7.12-4.4,12.23\n\tc0,5.11,1.47,9.19,4.4,12.23c2.93,3.04,6.65,4.57,11.16,4.57C73.65,169.65,77.34,168.12,80.27,165.08z\"/>\n<path
+    class=\"st3\" d=\"M181.69,104.25v78.93h-15l-39.35-47.92v47.92H109.3v-78.93h15.11l39.24,47.92v-47.92H181.69z\"/>\n</svg>\n"
