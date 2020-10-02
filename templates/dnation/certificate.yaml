@@ -1,0 +1,16 @@
+{{- if .Values.k8sM8gStack.certificate.enabled }}
+apiVersion: certmanager.k8s.io/v1alpha1
+kind: Certificate
+metadata:
+  name: {{ printf "%s-%s" (include "monitoring.fullname" $) "monitoring" | trunc 63 | trimSuffix "-" }}
+  namespace: {{ $.Release.Namespace }}
+spec:
+  secretName: {{ .Values.k8sM8gStack.certificate.secretName }}
+  issuerRef:
+    name: {{ .Values.k8sM8gStack.certificate.issuer }}
+  commonName: {{ .Values.k8sM8gStack.certificate.commonName }}
+  dnsNames:
+  {{- range .Values.k8sM8gStack.certificate.hosts }}
+  - {{ . }}
+  {{- end }}
+{{- end }}

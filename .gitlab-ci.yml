@@ -1,0 +1,92 @@
+variables:
+  # When using DinD service, we need to instruct docker, to talk with
+  # the daemon started inside of the service. The daemon is available
+  # with a network connection instead of the default /var/run/docker.sock socket.
+  DOCKER_HOST: "tcp://docker:2375"
+
+.base:
+  image: dtzar/helm-kubectl:3.3.1
+  tags:
+    - docker
+    - privileged
+  only:
+    - merge_requests
+    - master
+
+.test-install:
+  extends: .base
+  before_script:
+    # Install KinD
+    - curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.8.1/kind-linux-amd64
+    - chmod +x ./kind
+    - mv ./kind /usr/bin/kind
+    # Install Docker
+    - apk add docker
+    # Patch KinD config to listen on docker service's IP address
+    - "sed -i 's/apiServerAddress: .*/apiServerAddress: '$(grep 'docker' /etc/hosts | awk '{print $1}')/ helpers/kind_cluster_config.yaml"
+  services:
+    - docker:18.09-dind
+
+stages:
+  - build helm
+  - test
+  - publish
+  - deploy
+
+build helm package:
+  stage: build helm
+  extends: .base
+  script:
+    - helm package -u -d release .
+  artifacts:
+    paths:
+    - release/
+
+test lint:
+  stage: test
+  extends: .base
+  script:
+    - helm lint . -f values.yaml
+    - helm lint . -f values-dnation.yaml
+
+test install k8s v1.17.5:
+  stage: test
+  extends: .test-install
+  script:
+    - kind create cluster --config helpers/kind_cluster_config.yaml --image kindest/node:v1.17.5
+    - helm install monitoring release/k8s-m8g-stack-*.tgz
+
+test install k8s v1.19.1:
+  stage: test
+  extends: .test-install
+  script:
+    - kind create cluster --config helpers/kind_cluster_config.yaml --image kindest/node:v1.19.1
+    - helm install monitoring release/k8s-m8g-stack-*.tgz
+
+publish:
+  stage: publish
+  image: cfmanteiga/alpine-bash-curl-jq
+  only:
+    - master
+  script:
+    - curl --fail --user "$IFNE_HELM_USER":"$IFNE_HELM_PASS" "$IFNE_HELM_URL" --upload-file release/k8s-m8g-stack-*.tgz
+  when: manual
+
+deploy:
+  stage: deploy
+  extends: .base
+  only:
+    - master
+  before_script:
+    # https://git.ifne.eu/infra/k8s/-/wikis/Installation-of-k8s#workaround-for-please-ensure-your-ca-certificate-and-token-are-valid-issue
+    - echo "138.201.245.222 kubernetes" >> /etc/hosts
+    - helm repo add ifne "$IFNE_HELM_URL"
+    - helm repo update
+  script:
+    - helm upgrade --install monitoring ifne/k8s-m8g-stack -f values-dnation.yaml
+  environment:
+    name: production
+    url: "$KUBE_URL"
+    kubernetes:
+      namespace: monitoring
+  when: manual

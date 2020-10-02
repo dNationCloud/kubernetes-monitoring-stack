@@ -1,0 +1,1420 @@
+#  Copyright 2020 The K8s-m8g-stack Authors. All Rights Reserved.
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#      http://www.apache.org/licenses/LICENSE-2.0
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: {{ $.Release.Namespace }}
+  name: {{ printf "%s-%s" (include "monitoring.fullname" $) "main-node-cpu-detail" | trunc 63 | trimSuffix "-" }}
+  labels:
+    {{- if .Values.k8sM8gStack.sidecar.dashboards.enabled }}
+    {{ .Values.k8sM8gStack.sidecar.dashboards.label }}: "1"
+    {{- end }}
+    app: {{ template "monitoring.name" $ }}-grafana
+data:
+  dnation_main_node_cpu_detail.json: |-
+    {
+
+    "annotations": {
+        "list": [
+            {
+                "builtIn": 1,
+                "datasource": "-- Grafana --",
+                "enable": true,
+                "hide": true,
+                "iconColor": "rgba(0, 211, 255, 1)",
+                "name": "Annotations & Alerts",
+                "type": "dashboard"
+            }
+        ]
+    },
+    "editable": true,
+    "gnetId": null,
+    "graphTooltip": 1,
+    "id": 32,
+    "iteration": 1595830281996,
+    "links": [],
+    "panels": [
+        {
+            "cacheTimeout": null,
+            "colors": [
+                "#299c46",
+                "rgba(237, 129, 40, 0.89)",
+                "#d44a3a"
+            ],
+            "datasource": "$datasource",
+            "fieldConfig": {
+                "defaults": {
+                    "custom": {}
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 6,
+                "w": 24,
+                "x": 0,
+                "y": 0
+            },
+            "id": 24,
+            "links": [],
+            "mappingType": 1,
+            "mappingTypes": [
+                {
+                    "$$hashKey": "object:107",
+                    "name": "value to text",
+                    "value": 1
+                },
+                {
+                    "$$hashKey": "object:108",
+                    "name": "range to text",
+                    "value": 2
+                }
+            ],
+            "polystat": {
+                "animationSpeed": 2500,
+                "columnAutoSize": true,
+                "columns": "",
+                "defaultClickThrough": "/d/nodeexporter/nodeexporter?orgId=1&var-datasource=$datasource&var-job=$job&var-instance=${__cell_name}&from=$__from&to=$__to",
+                "defaultClickThroughNewTab": true,
+                "defaultClickThroughSanitize": false,
+                "displayLimit": 100,
+                "fontAutoColor": false,
+                "fontAutoScale": true,
+                "fontColor": "white",
+                "fontSize": 20,
+                "fontType": "Roboto",
+                "globalDecimals": null,
+                "globalDisplayMode": "all",
+                "globalDisplayTextTriggeredEmpty": "OK",
+                "globalOperatorName": "avg",
+                "globalThresholds": [
+                    {
+                        "$$hashKey": "object:141",
+                        "color": "#299c46",
+                        "state": 0,
+                        "value": 0
+                    },
+                    {
+                        "$$hashKey": "object:142",
+                        "color": "rgba(237, 129, 40, 0.89)",
+                        "state": 1,
+                        "value": 75
+                    },
+                    {
+                        "$$hashKey": "object:143",
+                        "color": "#d44a3a",
+                        "state": 2,
+                        "value": 90
+                    }
+                ],
+                "globalUnitFormat": "percent",
+                "gradientEnabled": true,
+                "hexagonSortByDirection": 4,
+                "hexagonSortByField": "value",
+                "maxMetrics": 0,
+                "polygonBorderColor": "#ffffff",
+                "polygonBorderSize": 0,
+                "polygonGlobalFillColor": "#0c62c4",
+                "radius": "",
+                "radiusAutoSize": true,
+                "rowAutoSize": true,
+                "rows": "",
+                "shape": "hexagon_pointed_top",
+                "tooltipDisplayMode": "all",
+                "tooltipDisplayTextTriggeredEmpty": "OK",
+                "tooltipFontSize": 12,
+                "tooltipFontType": "Roboto",
+                "tooltipPrimarySortDirection": 4,
+                "tooltipPrimarySortField": "value",
+                "tooltipSecondarySortDirection": 4,
+                "tooltipSecondarySortField": "value",
+                "tooltipTimestampEnabled": false
+            },
+            "rangeMaps": [
+                {
+                    "from": "null",
+                    "text": "N/A",
+                    "to": "null"
+                }
+            ],
+            "savedComposites": [],
+            "savedOverrides": [],
+            "targets": [
+                {
+                    "expr": "round((1 - (avg by (instance) (irate(node_cpu_seconds_total{job=~\"$job\", mode=\"idle\"}[5m])))) * 100)\n* on(instance) group_left(nodename) \n   node_uname_info{nodename=~\"$instance\"}",
+                    "format": "time_series",
+                    "interval": "10s",
+                    "intervalFactor": 1,
+                    "legendFormat": "{{`{{`}}nodename{{`}}`}}",
+                    "refId": "A",
+                    "step": 10
+                }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "CPU per Node",
+            "type": "grafana-polystat-panel",
+            "valueMaps": [
+                {
+                    "$$hashKey": "object:110",
+                    "op": "=",
+                    "text": "N/A",
+                    "value": "null"
+                }
+            ]
+        },
+        {
+            "collapsed": true,
+            "datasource": null,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 6
+            },
+            "id": 13,
+            "panels": [
+                {
+                    "aliasColors": {},
+                    "bars": false,
+                    "dashLength": 10,
+                    "dashes": false,
+                    "datasource": "$datasource",
+                    "fieldConfig": {
+                        "defaults": {
+                            "custom": {}
+                        },
+                        "overrides": []
+                    },
+                    "fill": 1,
+                    "fillGradient": 0,
+                    "gridPos": {
+                        "h": 7,
+                        "w": 24,
+                        "x": 0,
+                        "y": 7
+                    },
+                    "hiddenSeries": false,
+                    "id": 2,
+                    "legend": {
+                        "alignAsTable": false,
+                        "avg": false,
+                        "current": false,
+                        "max": false,
+                        "min": false,
+                        "rightSide": false,
+                        "show": true,
+                        "total": false,
+                        "values": false
+                    },
+                    "lines": true,
+                    "linewidth": 1,
+                    "links": [],
+                    "nullPointMode": "null",
+                    "options": {
+                        "dataLinks": []
+                    },
+                    "percentage": false,
+                    "pointradius": 5,
+                    "points": false,
+                    "renderer": "flot",
+                    "repeat": null,
+                    "scopedVars": {
+                        "instance": {
+                            "selected": false,
+                            "text": "k8s-master-01",
+                            "value": "k8s-master-01"
+                        }
+                    },
+                    "seriesOverrides": [],
+                    "spaceLength": 10,
+                    "stack": true,
+                    "steppedLine": false,
+                    "targets": [
+                        {
+                            "expr": "round((1 - (avg(irate(node_cpu_seconds_total{job=~\"$job\", mode=\"idle\"}[5m])\n* on(instance) group_left(nodename) \n   node_uname_info{nodename=~\"$instance\"}))) * 100)",
+                            "format": "time_series",
+                            "interval": "1m",
+                            "intervalFactor": 5,
+                            "legendFormat": "cpu usage",
+                            "refId": "C"
+                        }
+                    ],
+                    "thresholds": [],
+                    "timeFrom": null,
+                    "timeRegions": [],
+                    "timeShift": null,
+                    "title": "CPU Utilization",
+                    "tooltip": {
+                        "shared": true,
+                        "sort": 2,
+                        "value_type": "individual"
+                    },
+                    "type": "graph",
+                    "xaxis": {
+                        "buckets": null,
+                        "mode": "time",
+                        "name": null,
+                        "show": true,
+                        "values": []
+                    },
+                    "yaxes": [
+                        {
+                            "$$hashKey": "object:532",
+                            "format": "percent",
+                            "label": null,
+                            "logBase": 1,
+                            "max": "100",
+                            "min": 0,
+                            "show": true
+                        },
+                        {
+                            "$$hashKey": "object:533",
+                            "format": "percent",
+                            "label": null,
+                            "logBase": 1,
+                            "max": "100",
+                            "min": 0,
+                            "show": false
+                        }
+                    ],
+                    "yaxis": {
+                        "align": false,
+                        "alignLevel": null
+                    }
+                },
+                {
+                    "aliasColors": {},
+                    "bars": false,
+                    "dashLength": 10,
+                    "dashes": false,
+                    "datasource": "$datasource",
+                    "fieldConfig": {
+                        "defaults": {
+                            "custom": {}
+                        },
+                        "overrides": []
+                    },
+                    "fill": 0,
+                    "fillGradient": 0,
+                    "gridPos": {
+                        "h": 7,
+                        "w": 24,
+                        "x": 0,
+                        "y": 14
+                    },
+                    "hiddenSeries": false,
+                    "id": 3,
+                    "legend": {
+                        "alignAsTable": false,
+                        "avg": false,
+                        "current": false,
+                        "max": false,
+                        "min": false,
+                        "rightSide": false,
+                        "show": true,
+                        "total": false,
+                        "values": false
+                    },
+                    "lines": true,
+                    "linewidth": 1,
+                    "links": [],
+                    "nullPointMode": "null",
+                    "options": {
+                        "dataLinks": []
+                    },
+                    "percentage": false,
+                    "pointradius": 5,
+                    "points": false,
+                    "renderer": "flot",
+                    "repeat": null,
+                    "scopedVars": {
+                        "instance": {
+                            "selected": false,
+                            "text": "k8s-master-01",
+                            "value": "k8s-master-01"
+                        }
+                    },
+                    "seriesOverrides": [
+                        {
+                            "$$hashKey": "object:210",
+                            "alias": "logical cores",
+                            "color": "#C4162A",
+                            "linewidth": 2
+                        }
+                    ],
+                    "spaceLength": 10,
+                    "stack": false,
+                    "steppedLine": false,
+                    "targets": [
+                        {
+                            "expr": "node_load1{job=~\"$job\"}\n* on(instance) group_left(nodename) \n   node_uname_info{nodename=~\"$instance\"}",
+                            "format": "time_series",
+                            "hide": false,
+                            "interval": "",
+                            "intervalFactor": 2,
+                            "legendFormat": "1m load average",
+                            "refId": "A"
+                        },
+                        {
+                            "expr": "node_load5{job=~\"$job\"}\n* on(instance) group_left(nodename) \n   node_uname_info{nodename=~\"$instance\"}",
+                            "format": "time_series",
+                            "hide": false,
+                            "interval": "",
+                            "intervalFactor": 2,
+                            "legendFormat": "5m load average",
+                            "refId": "B"
+                        },
+                        {
+                            "expr": "node_load15{job=~\"$job\"}\n* on(instance) group_left(nodename) \n   node_uname_info{nodename=~\"$instance\"}",
+                            "format": "time_series",
+                            "hide": false,
+                            "interval": "",
+                            "intervalFactor": 2,
+                            "legendFormat": "15m load average",
+                            "refId": "C"
+                        },
+                        {
+                            "expr": "count(node_cpu_seconds_total{job=~\"$job\", mode=\"idle\"}\n* on(instance) group_left(nodename) \n   node_uname_info{nodename=~\"$instance\"})",
+                            "format": "time_series",
+                            "hide": false,
+                            "interval": "",
+                            "intervalFactor": 2,
+                            "legendFormat": "logical cores",
+                            "refId": "D"
+                        }
+                    ],
+                    "thresholds": [],
+                    "timeFrom": null,
+                    "timeRegions": [],
+                    "timeShift": null,
+                    "title": "Load Average",
+                    "tooltip": {
+                        "shared": true,
+                        "sort": 2,
+                        "value_type": "individual"
+                    },
+                    "type": "graph",
+                    "xaxis": {
+                        "buckets": null,
+                        "mode": "time",
+                        "name": null,
+                        "show": true,
+                        "values": []
+                    },
+                    "yaxes": [
+                        {
+                            "$$hashKey": "object:219",
+                            "format": "short",
+                            "label": null,
+                            "logBase": 1,
+                            "max": null,
+                            "min": 0,
+                            "show": true
+                        },
+                        {
+                            "$$hashKey": "object:220",
+                            "format": "short",
+                            "label": null,
+                            "logBase": 1,
+                            "max": null,
+                            "min": 0,
+                            "show": true
+                        }
+                    ],
+                    "yaxis": {
+                        "align": false,
+                        "alignLevel": null
+                    }
+                }
+            ],
+            "repeat": "instance",
+            "scopedVars": {
+                "instance": {
+                    "selected": false,
+                    "text": "k8s-master-01",
+                    "value": "k8s-master-01"
+                }
+            },
+            "title": "$instance",
+            "type": "row"
+        },
+        {
+            "collapsed": true,
+            "datasource": null,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 7
+            },
+            "id": 25,
+            "panels": [
+                {
+                    "aliasColors": {},
+                    "bars": false,
+                    "dashLength": 10,
+                    "dashes": false,
+                    "datasource": "$datasource",
+                    "fieldConfig": {
+                        "defaults": {
+                            "custom": {}
+                        },
+                        "overrides": []
+                    },
+                    "fill": 1,
+                    "fillGradient": 0,
+                    "gridPos": {
+                        "h": 7,
+                        "w": 24,
+                        "x": 0,
+                        "y": 7
+                    },
+                    "hiddenSeries": false,
+                    "id": 26,
+                    "legend": {
+                        "alignAsTable": false,
+                        "avg": false,
+                        "current": false,
+                        "max": false,
+                        "min": false,
+                        "rightSide": false,
+                        "show": true,
+                        "total": false,
+                        "values": false
+                    },
+                    "lines": true,
+                    "linewidth": 1,
+                    "links": [],
+                    "nullPointMode": "null",
+                    "options": {
+                        "dataLinks": []
+                    },
+                    "percentage": false,
+                    "pointradius": 5,
+                    "points": false,
+                    "renderer": "flot",
+                    "repeat": null,
+                    "repeatIteration": 1595830281996,
+                    "repeatPanelId": 2,
+                    "repeatedByRow": true,
+                    "scopedVars": {
+                        "instance": {
+                            "selected": false,
+                            "text": "k8s-node-01",
+                            "value": "k8s-node-01"
+                        }
+                    },
+                    "seriesOverrides": [],
+                    "spaceLength": 10,
+                    "stack": true,
+                    "steppedLine": false,
+                    "targets": [
+                        {
+                            "expr": "round((1 - (avg(irate(node_cpu_seconds_total{job=~\"$job\", mode=\"idle\"}[5m])\n* on(instance) group_left(nodename) \n   node_uname_info{nodename=~\"$instance\"}))) * 100)",
+                            "format": "time_series",
+                            "interval": "1m",
+                            "intervalFactor": 5,
+                            "legendFormat": "cpu usage",
+                            "refId": "C"
+                        }
+                    ],
+                    "thresholds": [],
+                    "timeFrom": null,
+                    "timeRegions": [],
+                    "timeShift": null,
+                    "title": "CPU Utilization",
+                    "tooltip": {
+                        "shared": true,
+                        "sort": 2,
+                        "value_type": "individual"
+                    },
+                    "type": "graph",
+                    "xaxis": {
+                        "buckets": null,
+                        "mode": "time",
+                        "name": null,
+                        "show": true,
+                        "values": []
+                    },
+                    "yaxes": [
+                        {
+                            "$$hashKey": "object:532",
+                            "format": "percent",
+                            "label": null,
+                            "logBase": 1,
+                            "max": "100",
+                            "min": 0,
+                            "show": true
+                        },
+                        {
+                            "$$hashKey": "object:533",
+                            "format": "percent",
+                            "label": null,
+                            "logBase": 1,
+                            "max": "100",
+                            "min": 0,
+                            "show": false
+                        }
+                    ],
+                    "yaxis": {
+                        "align": false,
+                        "alignLevel": null
+                    }
+                },
+                {
+                    "aliasColors": {},
+                    "bars": false,
+                    "dashLength": 10,
+                    "dashes": false,
+                    "datasource": "$datasource",
+                    "fieldConfig": {
+                        "defaults": {
+                            "custom": {}
+                        },
+                        "overrides": []
+                    },
+                    "fill": 0,
+                    "fillGradient": 0,
+                    "gridPos": {
+                        "h": 7,
+                        "w": 24,
+                        "x": 0,
+                        "y": 14
+                    },
+                    "hiddenSeries": false,
+                    "id": 27,
+                    "legend": {
+                        "alignAsTable": false,
+                        "avg": false,
+                        "current": false,
+                        "max": false,
+                        "min": false,
+                        "rightSide": false,
+                        "show": true,
+                        "total": false,
+                        "values": false
+                    },
+                    "lines": true,
+                    "linewidth": 1,
+                    "links": [],
+                    "nullPointMode": "null",
+                    "options": {
+                        "dataLinks": []
+                    },
+                    "percentage": false,
+                    "pointradius": 5,
+                    "points": false,
+                    "renderer": "flot",
+                    "repeat": null,
+                    "repeatIteration": 1595830281996,
+                    "repeatPanelId": 3,
+                    "repeatedByRow": true,
+                    "scopedVars": {
+                        "instance": {
+                            "selected": false,
+                            "text": "k8s-node-01",
+                            "value": "k8s-node-01"
+                        }
+                    },
+                    "seriesOverrides": [
+                        {
+                            "$$hashKey": "object:210",
+                            "alias": "logical cores",
+                            "color": "#C4162A",
+                            "linewidth": 2
+                        }
+                    ],
+                    "spaceLength": 10,
+                    "stack": false,
+                    "steppedLine": false,
+                    "targets": [
+                        {
+                            "expr": "node_load1{job=~\"$job\"}\n* on(instance) group_left(nodename) \n   node_uname_info{nodename=~\"$instance\"}",
+                            "format": "time_series",
+                            "hide": false,
+                            "interval": "",
+                            "intervalFactor": 2,
+                            "legendFormat": "1m load average",
+                            "refId": "A"
+                        },
+                        {
+                            "expr": "node_load5{job=~\"$job\"}\n* on(instance) group_left(nodename) \n   node_uname_info{nodename=~\"$instance\"}",
+                            "format": "time_series",
+                            "hide": false,
+                            "interval": "",
+                            "intervalFactor": 2,
+                            "legendFormat": "5m load average",
+                            "refId": "B"
+                        },
+                        {
+                            "expr": "node_load15{job=~\"$job\"}\n* on(instance) group_left(nodename) \n   node_uname_info{nodename=~\"$instance\"}",
+                            "format": "time_series",
+                            "hide": false,
+                            "interval": "",
+                            "intervalFactor": 2,
+                            "legendFormat": "15m load average",
+                            "refId": "C"
+                        },
+                        {
+                            "expr": "count(node_cpu_seconds_total{job=~\"$job\", mode=\"idle\"}\n* on(instance) group_left(nodename) \n   node_uname_info{nodename=~\"$instance\"})",
+                            "format": "time_series",
+                            "hide": false,
+                            "interval": "",
+                            "intervalFactor": 2,
+                            "legendFormat": "logical cores",
+                            "refId": "D"
+                        }
+                    ],
+                    "thresholds": [],
+                    "timeFrom": null,
+                    "timeRegions": [],
+                    "timeShift": null,
+                    "title": "Load Average",
+                    "tooltip": {
+                        "shared": true,
+                        "sort": 2,
+                        "value_type": "individual"
+                    },
+                    "type": "graph",
+                    "xaxis": {
+                        "buckets": null,
+                        "mode": "time",
+                        "name": null,
+                        "show": true,
+                        "values": []
+                    },
+                    "yaxes": [
+                        {
+                            "$$hashKey": "object:219",
+                            "format": "short",
+                            "label": null,
+                            "logBase": 1,
+                            "max": null,
+                            "min": 0,
+                            "show": true
+                        },
+                        {
+                            "$$hashKey": "object:220",
+                            "format": "short",
+                            "label": null,
+                            "logBase": 1,
+                            "max": null,
+                            "min": 0,
+                            "show": true
+                        }
+                    ],
+                    "yaxis": {
+                        "align": false,
+                        "alignLevel": null
+                    }
+                }
+            ],
+            "repeat": null,
+            "repeatIteration": 1595830281996,
+            "repeatPanelId": 13,
+            "scopedVars": {
+                "instance": {
+                    "selected": false,
+                    "text": "k8s-node-01",
+                    "value": "k8s-node-01"
+                }
+            },
+            "title": "$instance",
+            "type": "row"
+        },
+        {
+            "collapsed": true,
+            "datasource": null,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 8
+            },
+            "id": 28,
+            "panels": [
+                {
+                    "aliasColors": {},
+                    "bars": false,
+                    "dashLength": 10,
+                    "dashes": false,
+                    "datasource": "$datasource",
+                    "fieldConfig": {
+                        "defaults": {
+                            "custom": {}
+                        },
+                        "overrides": []
+                    },
+                    "fill": 1,
+                    "fillGradient": 0,
+                    "gridPos": {
+                        "h": 7,
+                        "w": 24,
+                        "x": 0,
+                        "y": 7
+                    },
+                    "hiddenSeries": false,
+                    "id": 29,
+                    "legend": {
+                        "alignAsTable": false,
+                        "avg": false,
+                        "current": false,
+                        "max": false,
+                        "min": false,
+                        "rightSide": false,
+                        "show": true,
+                        "total": false,
+                        "values": false
+                    },
+                    "lines": true,
+                    "linewidth": 1,
+                    "links": [],
+                    "nullPointMode": "null",
+                    "options": {
+                        "dataLinks": []
+                    },
+                    "percentage": false,
+                    "pointradius": 5,
+                    "points": false,
+                    "renderer": "flot",
+                    "repeat": null,
+                    "repeatIteration": 1595830281996,
+                    "repeatPanelId": 2,
+                    "repeatedByRow": true,
+                    "scopedVars": {
+                        "instance": {
+                            "selected": false,
+                            "text": "k8s-node-02",
+                            "value": "k8s-node-02"
+                        }
+                    },
+                    "seriesOverrides": [],
+                    "spaceLength": 10,
+                    "stack": true,
+                    "steppedLine": false,
+                    "targets": [
+                        {
+                            "expr": "round((1 - (avg(irate(node_cpu_seconds_total{job=~\"$job\", mode=\"idle\"}[5m])\n* on(instance) group_left(nodename) \n   node_uname_info{nodename=~\"$instance\"}))) * 100)",
+                            "format": "time_series",
+                            "interval": "1m",
+                            "intervalFactor": 5,
+                            "legendFormat": "cpu usage",
+                            "refId": "C"
+                        }
+                    ],
+                    "thresholds": [],
+                    "timeFrom": null,
+                    "timeRegions": [],
+                    "timeShift": null,
+                    "title": "CPU Utilization",
+                    "tooltip": {
+                        "shared": true,
+                        "sort": 2,
+                        "value_type": "individual"
+                    },
+                    "type": "graph",
+                    "xaxis": {
+                        "buckets": null,
+                        "mode": "time",
+                        "name": null,
+                        "show": true,
+                        "values": []
+                    },
+                    "yaxes": [
+                        {
+                            "$$hashKey": "object:532",
+                            "format": "percent",
+                            "label": null,
+                            "logBase": 1,
+                            "max": "100",
+                            "min": 0,
+                            "show": true
+                        },
+                        {
+                            "$$hashKey": "object:533",
+                            "format": "percent",
+                            "label": null,
+                            "logBase": 1,
+                            "max": "100",
+                            "min": 0,
+                            "show": false
+                        }
+                    ],
+                    "yaxis": {
+                        "align": false,
+                        "alignLevel": null
+                    }
+                },
+                {
+                    "aliasColors": {},
+                    "bars": false,
+                    "dashLength": 10,
+                    "dashes": false,
+                    "datasource": "$datasource",
+                    "fieldConfig": {
+                        "defaults": {
+                            "custom": {}
+                        },
+                        "overrides": []
+                    },
+                    "fill": 0,
+                    "fillGradient": 0,
+                    "gridPos": {
+                        "h": 7,
+                        "w": 24,
+                        "x": 0,
+                        "y": 14
+                    },
+                    "hiddenSeries": false,
+                    "id": 30,
+                    "legend": {
+                        "alignAsTable": false,
+                        "avg": false,
+                        "current": false,
+                        "max": false,
+                        "min": false,
+                        "rightSide": false,
+                        "show": true,
+                        "total": false,
+                        "values": false
+                    },
+                    "lines": true,
+                    "linewidth": 1,
+                    "links": [],
+                    "nullPointMode": "null",
+                    "options": {
+                        "dataLinks": []
+                    },
+                    "percentage": false,
+                    "pointradius": 5,
+                    "points": false,
+                    "renderer": "flot",
+                    "repeat": null,
+                    "repeatIteration": 1595830281996,
+                    "repeatPanelId": 3,
+                    "repeatedByRow": true,
+                    "scopedVars": {
+                        "instance": {
+                            "selected": false,
+                            "text": "k8s-node-02",
+                            "value": "k8s-node-02"
+                        }
+                    },
+                    "seriesOverrides": [
+                        {
+                            "$$hashKey": "object:210",
+                            "alias": "logical cores",
+                            "color": "#C4162A",
+                            "linewidth": 2
+                        }
+                    ],
+                    "spaceLength": 10,
+                    "stack": false,
+                    "steppedLine": false,
+                    "targets": [
+                        {
+                            "expr": "node_load1{job=~\"$job\"}\n* on(instance) group_left(nodename) \n   node_uname_info{nodename=~\"$instance\"}",
+                            "format": "time_series",
+                            "hide": false,
+                            "interval": "",
+                            "intervalFactor": 2,
+                            "legendFormat": "1m load average",
+                            "refId": "A"
+                        },
+                        {
+                            "expr": "node_load5{job=~\"$job\"}\n* on(instance) group_left(nodename) \n   node_uname_info{nodename=~\"$instance\"}",
+                            "format": "time_series",
+                            "hide": false,
+                            "interval": "",
+                            "intervalFactor": 2,
+                            "legendFormat": "5m load average",
+                            "refId": "B"
+                        },
+                        {
+                            "expr": "node_load15{job=~\"$job\"}\n* on(instance) group_left(nodename) \n   node_uname_info{nodename=~\"$instance\"}",
+                            "format": "time_series",
+                            "hide": false,
+                            "interval": "",
+                            "intervalFactor": 2,
+                            "legendFormat": "15m load average",
+                            "refId": "C"
+                        },
+                        {
+                            "expr": "count(node_cpu_seconds_total{job=~\"$job\", mode=\"idle\"}\n* on(instance) group_left(nodename) \n   node_uname_info{nodename=~\"$instance\"})",
+                            "format": "time_series",
+                            "hide": false,
+                            "interval": "",
+                            "intervalFactor": 2,
+                            "legendFormat": "logical cores",
+                            "refId": "D"
+                        }
+                    ],
+                    "thresholds": [],
+                    "timeFrom": null,
+                    "timeRegions": [],
+                    "timeShift": null,
+                    "title": "Load Average",
+                    "tooltip": {
+                        "shared": true,
+                        "sort": 2,
+                        "value_type": "individual"
+                    },
+                    "type": "graph",
+                    "xaxis": {
+                        "buckets": null,
+                        "mode": "time",
+                        "name": null,
+                        "show": true,
+                        "values": []
+                    },
+                    "yaxes": [
+                        {
+                            "$$hashKey": "object:219",
+                            "format": "short",
+                            "label": null,
+                            "logBase": 1,
+                            "max": null,
+                            "min": 0,
+                            "show": true
+                        },
+                        {
+                            "$$hashKey": "object:220",
+                            "format": "short",
+                            "label": null,
+                            "logBase": 1,
+                            "max": null,
+                            "min": 0,
+                            "show": true
+                        }
+                    ],
+                    "yaxis": {
+                        "align": false,
+                        "alignLevel": null
+                    }
+                }
+            ],
+            "repeat": null,
+            "repeatIteration": 1595830281996,
+            "repeatPanelId": 13,
+            "scopedVars": {
+                "instance": {
+                    "selected": false,
+                    "text": "k8s-node-02",
+                    "value": "k8s-node-02"
+                }
+            },
+            "title": "$instance",
+            "type": "row"
+        },
+        {
+            "collapsed": true,
+            "datasource": null,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 9
+            },
+            "id": 31,
+            "panels": [
+                {
+                    "aliasColors": {},
+                    "bars": false,
+                    "dashLength": 10,
+                    "dashes": false,
+                    "datasource": "$datasource",
+                    "fieldConfig": {
+                        "defaults": {
+                            "custom": {}
+                        },
+                        "overrides": []
+                    },
+                    "fill": 1,
+                    "fillGradient": 0,
+                    "gridPos": {
+                        "h": 7,
+                        "w": 24,
+                        "x": 0,
+                        "y": 7
+                    },
+                    "hiddenSeries": false,
+                    "id": 32,
+                    "legend": {
+                        "alignAsTable": false,
+                        "avg": false,
+                        "current": false,
+                        "max": false,
+                        "min": false,
+                        "rightSide": false,
+                        "show": true,
+                        "total": false,
+                        "values": false
+                    },
+                    "lines": true,
+                    "linewidth": 1,
+                    "links": [],
+                    "nullPointMode": "null",
+                    "options": {
+                        "dataLinks": []
+                    },
+                    "percentage": false,
+                    "pointradius": 5,
+                    "points": false,
+                    "renderer": "flot",
+                    "repeat": null,
+                    "repeatIteration": 1595830281996,
+                    "repeatPanelId": 2,
+                    "repeatedByRow": true,
+                    "scopedVars": {
+                        "instance": {
+                            "selected": false,
+                            "text": "k8s-node-03",
+                            "value": "k8s-node-03"
+                        }
+                    },
+                    "seriesOverrides": [],
+                    "spaceLength": 10,
+                    "stack": true,
+                    "steppedLine": false,
+                    "targets": [
+                        {
+                            "expr": "round((1 - (avg(irate(node_cpu_seconds_total{job=~\"$job\", mode=\"idle\"}[5m])\n* on(instance) group_left(nodename) \n   node_uname_info{nodename=~\"$instance\"}))) * 100)",
+                            "format": "time_series",
+                            "interval": "1m",
+                            "intervalFactor": 5,
+                            "legendFormat": "cpu usage",
+                            "refId": "C"
+                        }
+                    ],
+                    "thresholds": [],
+                    "timeFrom": null,
+                    "timeRegions": [],
+                    "timeShift": null,
+                    "title": "CPU Utilization",
+                    "tooltip": {
+                        "shared": true,
+                        "sort": 2,
+                        "value_type": "individual"
+                    },
+                    "type": "graph",
+                    "xaxis": {
+                        "buckets": null,
+                        "mode": "time",
+                        "name": null,
+                        "show": true,
+                        "values": []
+                    },
+                    "yaxes": [
+                        {
+                            "$$hashKey": "object:532",
+                            "format": "percent",
+                            "label": null,
+                            "logBase": 1,
+                            "max": "100",
+                            "min": 0,
+                            "show": true
+                        },
+                        {
+                            "$$hashKey": "object:533",
+                            "format": "percent",
+                            "label": null,
+                            "logBase": 1,
+                            "max": "100",
+                            "min": 0,
+                            "show": false
+                        }
+                    ],
+                    "yaxis": {
+                        "align": false,
+                        "alignLevel": null
+                    }
+                },
+                {
+                    "aliasColors": {},
+                    "bars": false,
+                    "dashLength": 10,
+                    "dashes": false,
+                    "datasource": "$datasource",
+                    "fieldConfig": {
+                        "defaults": {
+                            "custom": {}
+                        },
+                        "overrides": []
+                    },
+                    "fill": 0,
+                    "fillGradient": 0,
+                    "gridPos": {
+                        "h": 7,
+                        "w": 24,
+                        "x": 0,
+                        "y": 14
+                    },
+                    "hiddenSeries": false,
+                    "id": 33,
+                    "legend": {
+                        "alignAsTable": false,
+                        "avg": false,
+                        "current": false,
+                        "max": false,
+                        "min": false,
+                        "rightSide": false,
+                        "show": true,
+                        "total": false,
+                        "values": false
+                    },
+                    "lines": true,
+                    "linewidth": 1,
+                    "links": [],
+                    "nullPointMode": "null",
+                    "options": {
+                        "dataLinks": []
+                    },
+                    "percentage": false,
+                    "pointradius": 5,
+                    "points": false,
+                    "renderer": "flot",
+                    "repeat": null,
+                    "repeatIteration": 1595830281996,
+                    "repeatPanelId": 3,
+                    "repeatedByRow": true,
+                    "scopedVars": {
+                        "instance": {
+                            "selected": false,
+                            "text": "k8s-node-03",
+                            "value": "k8s-node-03"
+                        }
+                    },
+                    "seriesOverrides": [
+                        {
+                            "$$hashKey": "object:210",
+                            "alias": "logical cores",
+                            "color": "#C4162A",
+                            "linewidth": 2
+                        }
+                    ],
+                    "spaceLength": 10,
+                    "stack": false,
+                    "steppedLine": false,
+                    "targets": [
+                        {
+                            "expr": "node_load1{job=~\"$job\"}\n* on(instance) group_left(nodename) \n   node_uname_info{nodename=~\"$instance\"}",
+                            "format": "time_series",
+                            "hide": false,
+                            "interval": "",
+                            "intervalFactor": 2,
+                            "legendFormat": "1m load average",
+                            "refId": "A"
+                        },
+                        {
+                            "expr": "node_load5{job=~\"$job\"}\n* on(instance) group_left(nodename) \n   node_uname_info{nodename=~\"$instance\"}",
+                            "format": "time_series",
+                            "hide": false,
+                            "interval": "",
+                            "intervalFactor": 2,
+                            "legendFormat": "5m load average",
+                            "refId": "B"
+                        },
+                        {
+                            "expr": "node_load15{job=~\"$job\"}\n* on(instance) group_left(nodename) \n   node_uname_info{nodename=~\"$instance\"}",
+                            "format": "time_series",
+                            "hide": false,
+                            "interval": "",
+                            "intervalFactor": 2,
+                            "legendFormat": "15m load average",
+                            "refId": "C"
+                        },
+                        {
+                            "expr": "count(node_cpu_seconds_total{job=~\"$job\", mode=\"idle\"}\n* on(instance) group_left(nodename) \n   node_uname_info{nodename=~\"$instance\"})",
+                            "format": "time_series",
+                            "hide": false,
+                            "interval": "",
+                            "intervalFactor": 2,
+                            "legendFormat": "logical cores",
+                            "refId": "D"
+                        }
+                    ],
+                    "thresholds": [],
+                    "timeFrom": null,
+                    "timeRegions": [],
+                    "timeShift": null,
+                    "title": "Load Average",
+                    "tooltip": {
+                        "shared": true,
+                        "sort": 2,
+                        "value_type": "individual"
+                    },
+                    "type": "graph",
+                    "xaxis": {
+                        "buckets": null,
+                        "mode": "time",
+                        "name": null,
+                        "show": true,
+                        "values": []
+                    },
+                    "yaxes": [
+                        {
+                            "$$hashKey": "object:219",
+                            "format": "short",
+                            "label": null,
+                            "logBase": 1,
+                            "max": null,
+                            "min": 0,
+                            "show": true
+                        },
+                        {
+                            "$$hashKey": "object:220",
+                            "format": "short",
+                            "label": null,
+                            "logBase": 1,
+                            "max": null,
+                            "min": 0,
+                            "show": true
+                        }
+                    ],
+                    "yaxis": {
+                        "align": false,
+                        "alignLevel": null
+                    }
+                }
+            ],
+            "repeat": null,
+            "repeatIteration": 1595830281996,
+            "repeatPanelId": 13,
+            "scopedVars": {
+                "instance": {
+                    "selected": false,
+                    "text": "k8s-node-03",
+                    "value": "k8s-node-03"
+                }
+            },
+            "title": "$instance",
+            "type": "row"
+        }
+    ],
+    "refresh": false,
+    "schemaVersion": 25,
+    "style": "dark",
+    "tags": [
+        "k8s",
+        "detail",
+        "node"
+    ],
+    "templating": {
+        "list": [
+            {
+                "current": {
+                    "selected": false,
+                    "text": "",
+                    "value": ""
+                },
+                "hide": 0,
+                "includeAll": false,
+                "label": "Datasource",
+                "multi": false,
+                "name": "datasource",
+                "options": [],
+                "query": "prometheus",
+                "queryValue": "",
+                "refresh": 1,
+                "regex": "",
+                "skipUrlSync": false,
+                "type": "datasource"
+            },
+            {
+                "allValue": null,
+                "current": {
+                    "selected": true,
+                    "text": "All",
+                    "value": [
+                        "$__all"
+                    ]
+                },
+                "datasource": "$datasource",
+                "definition": "label_values(node_uname_info{job=\"node-exporter\"}, nodename)",
+                "hide": 0,
+                "includeAll": true,
+                "label": "Nodes",
+                "multi": true,
+                "name": "instance",
+                "options": [],
+                "query": "label_values(node_uname_info{job=\"node-exporter\"}, nodename)",
+                "refresh": 2,
+                "regex": "",
+                "skipUrlSync": false,
+                "sort": 1,
+                "tagValuesQuery": "",
+                "tags": [],
+                "tagsQuery": "",
+                "type": "query",
+                "useTags": false
+            },
+            {
+                "allValue": null,
+                "current": {
+                    "selected": false,
+                    "text": "node-exporter",
+                    "value": "node-exporter"
+                },
+                "datasource": "$datasource",
+                "definition": "label_values(node_exporter_build_info{pod!~\"\"}, job)",
+                "hide": 2,
+                "includeAll": false,
+                "label": null,
+                "multi": false,
+                "name": "job",
+                "options": [],
+                "query": "label_values(node_exporter_build_info{pod!~\"\"}, job)",
+                "refresh": 1,
+                "regex": "",
+                "skipUrlSync": false,
+                "sort": 2,
+                "tagValuesQuery": "",
+                "tags": [],
+                "tagsQuery": "",
+                "type": "query",
+                "useTags": false
+            }
+        ]
+    },
+    "time": {
+        "from": "now-5m",
+        "to": "now"
+    },
+    "timepicker": {
+        "refresh_intervals": [
+            "10s",
+            "30s",
+            "1m",
+            "5m",
+            "15m",
+            "30m",
+            "1h",
+            "2h",
+            "1d"
+        ],
+        "time_options": [
+            "5m",
+            "15m",
+            "1h",
+            "6h",
+            "12h",
+            "24h",
+            "2d",
+            "7d",
+            "30d"
+        ]
+    },
+    "timezone": "",
+    "title": "CPU per Node",
+    "uid": "jNR_edMMz",
+    "version": 21
+    }

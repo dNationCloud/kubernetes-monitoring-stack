@@ -1,0 +1,14 @@
+K8s-m8g-stack has been installed.
+Check its status by running:
+    kubectl --namespace {{ .Release.Namespace }} get pods
+
+ _  _____                    ___               _             _
+| |/ / _ \                  / _ \             | |           | |
+| ' / (_) |___    _ __ ___ | (_) | __ _    ___| |_ __ _  ___| | __
+|  < > _ </ __|  | '_ ` _ \ > _ < / _` |  / __| __/ _` |/ __| |/ /
+| . \ (_) \__ \  | | | | | | (_) | (_| |  \__ \ || (_| | (__|   <
+|_|\_\___/|___/  |_| |_| |_|\___/ \__, |  |___/\__\__,_|\___|_|\_\
+                                   __/ |
+                                  |___/
+
+Visit https://www.dNation.tech/ for detailed information
