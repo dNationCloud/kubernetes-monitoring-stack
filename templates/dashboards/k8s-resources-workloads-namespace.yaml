@@ -13,12 +13,9 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   namespace: {{ $.Release.Namespace }}
-  name: {{ printf "%s-%s" (include "monitoring.fullname" $) "k8s-resources-workloads-namespace" | trunc 63 | trimSuffix "-" }}
+  name: {{ $.Release.Name }}-k8s-resources-workloads-namespace
   labels:
-    {{- if .Values.k8sM8gStack.sidecar.dashboards.enabled }}
-    {{ .Values.k8sM8gStack.sidecar.dashboards.label }}: "1"
-    {{- end }}
-    app: {{ template "monitoring.name" $ }}-grafana
+    grafana_dashboard: "1"
 data:
   dnation-k8s-resources-workloads-namespace.json: |-
     {
