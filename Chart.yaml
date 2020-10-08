@@ -1,7 +1,6 @@
 apiVersion: v2
 name: k8s-m8g-stack
-version: 1.0.14
-appVersion: 1.0.2 #  K8s-m8g version
+version: 1.0.15
 description: An umbrella helm chart for Kubernetes monitoring based on kube-prometheus-stack, loki-stack and k8s-m8g.
 keywords:
 - kubernetes

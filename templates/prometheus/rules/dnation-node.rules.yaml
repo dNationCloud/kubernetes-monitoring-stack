@@ -12,7 +12,7 @@
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
-  name: {{ printf "%s-%s" (include "monitoring.fullname" $) "dnation-node.rules" | trunc 63 | trimSuffix "-" }}
+  name: {{ $.Release.Name }}-dnation-node.rules
   namespace: {{ $.Release.Namespace }}
   labels:
     app: {{ default "kube-prometheus-stack" (index .Values "kube-prometheus-stack" "nameOverride") | trunc 50 | trimSuffix "-" }}
