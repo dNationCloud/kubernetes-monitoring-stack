@@ -82,6 +82,7 @@ deploy:
     - echo "138.201.245.222 kubernetes" >> /etc/hosts
     - helm repo add ifne "$IFNE_HELM_URL"
     - helm repo update
+    - helm search repo ifne/k8s
   script:
     - helm upgrade --install monitoring ifne/k8s-m8g-stack -f values-dnation.yaml
   environment:
