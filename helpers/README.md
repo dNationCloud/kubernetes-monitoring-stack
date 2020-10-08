@@ -1,6 +1,6 @@
 # Helpers
 
-A set of scripts and configuration files which helps to simplify Kubernetes cluster setup and local development 
+A set of scripts and configuration files which helps to simplify Kubernetes cluster setup and local development.
 
 ## Kubernetes control plane components metrics
 
