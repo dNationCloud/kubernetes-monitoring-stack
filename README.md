@@ -6,18 +6,16 @@ An umbrella helm chart for Kubernetes Monitoring Stack deployment.
 
 K8s-m8g-stack umbrella helm chart is a collection of Kubernetes Monitoring charts:
 
+* [k8s-m8g](https://git.ifne.eu/dnation/k8s-m8g)
 * [kube-prometheus-stack](https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack)
 * [loki-stack](https://github.com/grafana/loki/tree/master/production/helm/loki-stack)
-* [k8s-m8g](https://git.ifne.eu/dnation/k8s-m8g)
-
-### Prerequisites
-
-* [Helm3](https://helm.sh/)
 
 ### Installation
 
-K8s-m8g-stack umbrella helm chart is currently hosted in the public [ifne](https://www.ifne.eu/) helm repository.
+Prerequisites
+* [Helm3](https://helm.sh/)
 
+K8s-m8g-stack umbrella helm chart is currently hosted in the public [ifne](https://www.ifne.eu/) helm repository.
 ```bash
 # Add ifne helm repository
 helm repo add ifne https://nexus.ifne.eu/repository/ifne-helm-public/
