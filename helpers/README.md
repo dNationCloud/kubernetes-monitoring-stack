@@ -73,7 +73,7 @@ Install K8s m8g stack
 * Prometheus UI is exposed on port `5001`, see http://localhost:5001
 * Prometheus Alertmanager UI is exposed on port `5002`, see http://localhost:5002
 ```bash
-helm install monitoring . --dependency-update -f helpers/values-kind.yaml
+helm install monitoring chart --dependency-update -f helpers/values-kind.yaml
 ```
 
 ## Node Exporter
