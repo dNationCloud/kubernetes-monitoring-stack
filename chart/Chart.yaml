@@ -1,6 +1,6 @@
 apiVersion: v2
 name: k8s-m8g-stack
-version: 1.0.19
+version: 1.0.20
 appVersion: 1.0.9  # k8s-m8g
 description: An umbrella helm chart for Kubernetes monitoring based on kube-prometheus-stack, loki-stack and k8s-m8g.
 keywords:
@@ -14,11 +14,11 @@ sources:
 - https://git.ifne.eu/dnation/k8s-m8g-stack
 dependencies:
 - name: kube-prometheus-stack
-  version: "9.4.*"
+  version: "10.1.*"
   repository: https://prometheus-community.github.io/helm-charts
   condition: kube-prometheus-stack.enabled
 - name: loki-stack
-  version: "0.40.*"
+  version: "0.41.*"
   repository: https://grafana.github.io/loki/charts
   condition: loki-stack.enabled
 - name: k8s-m8g
