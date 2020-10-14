@@ -1,6 +1,7 @@
 apiVersion: v2
 name: k8s-m8g-stack
-version: 1.0.18
+version: 1.0.19
+appVersion: 1.0.9  # k8s-m8g
 description: An umbrella helm chart for Kubernetes monitoring based on kube-prometheus-stack, loki-stack and k8s-m8g.
 keywords:
 - kubernetes
@@ -24,7 +25,7 @@ dependencies:
   version: "1.0.*"
   repository: https://nexus.ifne.eu/repository/ifne-helm-public/
   condition: k8s-m8g.enabled
-icon: https://storage.googleapis.com/ifne.eu/public/dNation_k8s_m8g_logo.png
+icon: https://storage.googleapis.com/ifne.eu/public/icons/dnation_k8sm8g.png
 maintainers:
 - name: dNation
   email: admin@dNation.tech
