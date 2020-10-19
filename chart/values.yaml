@@ -1,32 +1,96 @@
-# Configuration for loki-stack chart
-# https://github.com/grafana/loki/tree/master/production/helm/loki-stack
+# Default values for k8s-m8g-stack.
+# Declare variables to be passed into helm chart dependencies.
+
+## Deploy a k8s-m8g
+## ref: https://git.ifne.eu/dnation/k8s-m8g
+##
+k8s-m8g:
+  enabled: true
+
+  ## Label to apply to Grafana dashboard resources
+  ## Label of Grafana dashboard resource is used for target discovery
+  ## ref: https://github.com/prometheus-community/helm-charts/blob/main/charts/kube-prometheus-stack/values.yaml#L552
+  ##
+  dashboardLabel:
+    name: grafana_dashboard
+    value: '1'
+
+  ## Label to apply to Prometheus rule resources
+  ## Label of Prometheus rule resource is used for target discovery
+  ## ref: https://github.com/prometheus-community/helm-charts/blob/main/charts/kube-prometheus-stack/values.yaml#L1735
+  ##
+  ruleLabel:
+    name: prometheus_rule
+    value: '1'
+
+## Deploy a loki-stack
+## ref: https://github.com/grafana/loki/tree/master/production/helm/loki-stack
+##
 loki-stack:
   enabled: true
+
+  ## Deploy a Loki instance
+  ##
   loki:
     persistence:
       enabled: false
-  # Grafana deployment is managed by kube-prometheus-stack chart
+
+  ## Grafana deployment is managed by kube-prometheus-stack
+  ##
   grafana:
     enabled: false
     sidecar:
       datasources:
         enabled: false
 
-# Configuration for kube-prometheus-stack chart
-# https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack
+## Deploy a kube-prometheus-stack
+## ref: https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack
+##
 kube-prometheus-stack:
   enabled: true
+
+  ## Provide a name in place of kube-prometheus-stack for `app:` labels
+  ##
   nameOverride: prom-op
+
+  ## Default rules for monitoring the cluster
+  ##
+  defaultRules:
+    ## Labels for default rules
+    ##
+    labels:
+      prometheus_rule: '1'
+
+  ## Deploy a Prometheus instance
+  ##
+  prometheus:
+    prometheusSpec:
+      ## PrometheusRules to be selected for target discovery
+      ##
+      ruleSelector:
+        matchLabels:
+          prometheus_rule: '1'
+
+  ## Deploy a Grafana instance
+  ##
   grafana:
     adminUser: "admin"
     adminPassword: "pass"
+    ## Deploy default dashboards
+    ##
     defaultDashboardsEnabled: false
+
+    ## Inject dNation logo
+    ##
     extraConfigmapMounts:
     - name: dnation-logo
       mountPath: /usr/share/grafana/public/img/grafana_icon.svg
       subPath: dnation.svg
       configMap: dnation-logo
       readOnly: true
+
+    ## Sidecar that collect the configmaps with specified label and stores the included files them into the respective folders
+    ##
     sidecar:
       dashboards:
         label: grafana_dashboard
@@ -40,6 +104,10 @@ kube-prometheus-stack:
       datasources:
         label: grafana_datasource
         defaultDatasourceEnabled: false
+
+    ## Configure additional grafana datasources
+    ## ref: http://docs.grafana.org/administration/provisioning/#datasources
+    ##
     additionalDataSources:
     - name: cluster-metrics
       isDefault: false
@@ -62,6 +130,8 @@ kube-prometheus-stack:
     - camptocamp-prometheus-alertmanager-datasource
     - grafana-polystat-panel
 
+  ## Deploy an Alertmanager instance
+  ##
   alertmanager:
     config:
       route:
