@@ -7,16 +7,14 @@
 k8s-m8g:
   enabled: true
 
-  ## Label to apply to Grafana dashboard resources
-  ## Label of Grafana dashboard resource is used for target discovery
+  ## Label of Grafana dashboard resource used for target discovery
   ## ref: https://github.com/prometheus-community/helm-charts/blob/main/charts/kube-prometheus-stack/values.yaml#L552
   ##
   dashboardLabel:
     name: grafana_dashboard
     value: '1'
 
-  ## Label to apply to Prometheus rule resources
-  ## Label of Prometheus rule resource is used for target discovery
+  ## Label of Prometheus rule resource used for target discovery
   ## ref: https://github.com/prometheus-community/helm-charts/blob/main/charts/kube-prometheus-stack/values.yaml#L1735
   ##
   ruleLabel:
@@ -49,7 +47,7 @@ loki-stack:
 kube-prometheus-stack:
   enabled: true
 
-  ## Provide a name in place of kube-prometheus-stack for `app:` labels
+  ## Override the default value of 'app' label used by k8s objects
   ##
   nameOverride: prom-op
 
@@ -89,7 +87,7 @@ kube-prometheus-stack:
       configMap: dnation-logo
       readOnly: true
 
-    ## Sidecar that collect the configmaps with specified label and stores the included files them into the respective folders
+    ## Sidecar that collects the configmaps with specified label and stores them into the respective folders
     ##
     sidecar:
       dashboards:
