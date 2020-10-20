@@ -1,4 +1,4 @@
-# K8s-m8g-stack Code of Conduct
+# dNation Kubernetes Monitoring Stack Code of Conduct
 
 ## Our Pledge
 

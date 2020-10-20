@@ -1,10 +1,10 @@
-# Default values for k8s-m8g-stack.
+# Default values for dNation Kubernetes Monitoring Stack.
 # Declare variables to be passed into helm chart dependencies.
 
-## Deploy a k8s-m8g
-## ref: https://git.ifne.eu/dnation/k8s-m8g
+## Deploy a dnation-kubernetes-monitoring
+## ref: https://github.com/dNationCloud/kubernetes-monitoring
 ##
-k8s-m8g:
+dnation-kubernetes-monitoring:
   enabled: true
 
   ## Label of Grafana dashboard resource used for target discovery
@@ -92,10 +92,10 @@ kube-prometheus-stack:
     sidecar:
       dashboards:
         label: grafana_dashboard
-        folder: /var/lib/grafana/dashboards/k8s-m8g
+        folder: /var/lib/grafana/dashboards/dnation
         provider:
-          name: 'K8sM8g'
-          folder: 'K8sM8g'
+          name: 'dNation'
+          folder: 'dNation'
           disableDeletion: false
           allowUiUpdates: true
           editable: true
