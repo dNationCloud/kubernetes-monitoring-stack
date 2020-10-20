@@ -54,14 +54,14 @@ test install k8s v1.17.5:
   extends: .test-install
   script:
     - kind create cluster --config helpers/kind_cluster_config.yaml --image kindest/node:v1.17.5
-    - helm install monitoring chart/release/k8s-m8g-stack-*.tgz
+    - helm install monitoring chart/release/dnation-kubernetes-monitoring-stack-*.tgz
 
 test install k8s v1.19.1:
   stage: test
   extends: .test-install
   script:
     - kind create cluster --config helpers/kind_cluster_config.yaml --image kindest/node:v1.19.1
-    - helm install monitoring chart/release/k8s-m8g-stack-*.tgz
+    - helm install monitoring chart/release/dnation-kubernetes-monitoring-stack-*.tgz
 
 publish:
   stage: publish
@@ -69,7 +69,7 @@ publish:
   only:
     - master
   script:
-    - curl --fail --user "$IFNE_HELM_USER":"$IFNE_HELM_PASS" "$IFNE_HELM_URL" --upload-file chart/release/k8s-m8g-stack-*.tgz
+    - curl --fail --user "$IFNE_HELM_USER":"$IFNE_HELM_PASS" "$IFNE_HELM_URL" --upload-file chart/release/dnation-kubernetes-monitoring-stack-*.tgz
   when: manual
 
 deploy:
@@ -82,9 +82,9 @@ deploy:
     - echo "138.201.245.222 kubernetes" >> /etc/hosts
     - helm repo add ifne "$IFNE_HELM_URL"
     - helm repo update
-    - helm search repo ifne/k8s
+    - helm search repo ifne
   script:
-    - helm upgrade --install monitoring ifne/k8s-m8g-stack -f chart/values-dnation.yaml
+    - helm upgrade --install monitoring ifne/dnation-kubernetes-monitoring-stack -f chart/values-dnation.yaml
   environment:
     name: production
     url: "$KUBE_URL"

@@ -1,45 +1,17 @@
-<a href="https://dnation.tech/"><img width="250" alt="dNationCloud" src="https://storage.googleapis.com/ifne.eu/public/icons/dnation.png"></a>
+<a href="https://dnation.cloud/"><img width="250" alt="dNationCloud" src="https://storage.googleapis.com/ifne.eu/public/icons/dnation.png"></a>
 
-# <img src="https://storage.googleapis.com/ifne.eu/public/icons/dnation_k8sm8g.png" width="60" height="auto"> Kubernetes Monitoring Stack (K8s-m8g-stack)
+# dNation Kubernetes Monitoring Stack
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-An umbrella helm chart for Kubernetes Monitoring Stack deployment.
+An umbrella helm chart for [dNation Kubernetes Monitoring](https://github.com/dNationCloud/kubernetes-monitoring) deployment. It is a collection of:
 
-# Getting Started
-
-K8s-m8g-stack umbrella helm chart is a collection of Kubernetes Monitoring charts:
-
-* [k8s-m8g](https://git.ifne.eu/dnation/k8s-m8g)
+* [dnation-kubernetes-monitoring](https://github.com/dNationCloud/kubernetes-monitoring)
 * [kube-prometheus-stack](https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack)
 * [loki-stack](https://github.com/grafana/loki/tree/master/production/helm/loki-stack)
 
-### Installation
+This project has been developed, maintained and used in production by professionals to simplify their day-to-day monitoring tasks and reduce incident reaction time.
 
-Prerequisites
-* [Helm3](https://helm.sh/)
+# Getting Started
 
-K8s-m8g-stack umbrella helm chart is currently hosted in the public [ifne](https://www.ifne.eu/) helm repository.
-```bash
-# Add ifne helm repository
-helm repo add ifne https://nexus.ifne.eu/repository/ifne-helm-public/
-helm repo update
-
-# Install K8s-m8g
-kubectl create namespace monitoring
-helm install k8s-m8g-stack ifne/k8s-m8g-stack --namespace monitoring
-```
-
-# Contribution guidelines
-
-If you want to contribute to the K8s-m8g-stack project, be sure to review the
-[contribution guidelines](CONTRIBUTING.md). This project adheres to K8s-m8g-stack's
-[code of conduct](CODE_OF_CONDUCT.md). When participating, you are required to abide by the code of conduct.
-
-We use GitHub issues to manage requests and bugs, please visit our discussion forum if you have any questions.
-
-# Project Background
-
-K8s-m8g-stack project is developed, maintained and used in production by [dNation](https://www.dnation.tech/) professionals 
-to simplify their day-to-day monitoring tasks.  
-The development of K8s-m8g-stack was transformed to an open source project in October 2020.
+Please continue [here](GETTING_STARTED.md).

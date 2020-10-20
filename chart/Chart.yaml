@@ -1,17 +1,18 @@
 apiVersion: v2
-name: k8s-m8g-stack
-version: 1.0.23
-appVersion: 1.0.12  # k8s-m8g
-description: An umbrella helm chart for Kubernetes monitoring based on kube-prometheus-stack, loki-stack and k8s-m8g.
+name: dnation-kubernetes-monitoring-stack
+version: 1.0.24
+appVersion: 1.0.13  # dnation-kubernetes-monitoring
+description: An umbrella helm chart for Kubernetes monitoring based on kube-prometheus-stack, loki-stack and dnation-kubernetes-monitoring.
 keywords:
+- dnation
 - kubernetes
 - monitoring
 - prometheus
 - grafana
 - loki
-home: https://git.ifne.eu/dnation/k8s-m8g-stack
+home: https://dnation.cloud
 sources:
-- https://git.ifne.eu/dnation/k8s-m8g-stack
+- https://github.com/dNationCloud/kubernetes-monitoring-stack
 dependencies:
 - name: kube-prometheus-stack
   version: "10.1.*"
@@ -21,11 +22,11 @@ dependencies:
   version: "0.41.*"
   repository: https://grafana.github.io/loki/charts
   condition: loki-stack.enabled
-- name: k8s-m8g
+- name: dnation-kubernetes-monitoring
   version: "1.0.*"
   repository: https://nexus.ifne.eu/repository/ifne-helm-public/
-  condition: k8s-m8g.enabled
+  condition: dnation-kubernetes-monitoring.enabled
 icon: https://storage.googleapis.com/ifne.eu/public/icons/dnation_k8sm8g.png
 maintainers:
 - name: dNation
-  email: admin@dNation.tech
+  email: cloud@dNation.cloud
