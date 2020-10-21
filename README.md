@@ -12,6 +12,26 @@ An umbrella helm chart for [dNation Kubernetes Monitoring](https://github.com/dN
 
 This project has been developed, maintained and used in production by professionals to simplify their day-to-day monitoring tasks and reduce incident reaction time.
 
-# Getting Started
+# Installation
 
-Please continue [here](GETTING_STARTED.md).
+Prerequisites
+* [Helm3](https://helm.sh/)
+
+dNation Kubernetes Monitoring Stack umbrella chart is hosted in the [dNation helm repository](https://artifacthub.io/packages/search?repo=dnationcloud).
+```bash
+# Add dNation helm repository
+helm repo add dnationcloud https://dnationcloud.github.io/helm-hub/
+helm repo update
+
+# Install dNation Kubernetes Monitoring Stack
+helm install dnation-kubernetes-monitoring-stack dnationcloud/dnation-kubernetes-monitoring-stack
+```
+
+# Contribution guidelines
+
+If you want to contribute, please read following:
+1. [Contribution Guidelines](CONTRIBUTING.md)
+1. [Code of Conduct](CODE_OF_CONDUCT.md)
+1. [How To](helpers/README.md) simplify your local development
+
+We use GitHub issues to manage requests and bugs, please visit our discussion forum if you have any questions.
