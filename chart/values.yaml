@@ -1,6 +1,18 @@
 # Default values for dNation Kubernetes Monitoring Stack.
 # Declare variables to be passed into helm chart dependencies.
 
+## Override the default value of 'app' label used by k8s objects
+##
+nameOverride: ""
+
+## Override the deployment namespace
+##
+namespaceOverride: ""
+
+## Provide a name to substitute for the full names of resources
+##
+fullnameOverride: ""
+
 ## Deploy a dnation-kubernetes-monitoring
 ## ref: https://github.com/dNationCloud/kubernetes-monitoring
 ##
@@ -78,14 +90,36 @@ kube-prometheus-stack:
     ##
     defaultDashboardsEnabled: false
 
-    ## Inject dNation logo
+    ## Define security context of grafana container
+    ##
+    securityContext:
+      runAsUser: 0
+      runAsGroup: 0
+      fsGroup: 0
+
+    ## Define command to be executed at startup of grafana container
+    ##
+    command:
+    - "/bin/sh"
+    - "-c"
+    - "/etc/secrets/dnation_brand.sh && /run.sh"
+
+    ## Inject dNation branding
     ##
     extraConfigmapMounts:
     - name: dnation-logo
-      mountPath: /usr/share/grafana/public/img/grafana_icon.svg
-      subPath: dnation.svg
+      mountPath: /usr/share/grafana/public/img/dnation_logo.svg
+      subPath: dnation_logo.svg
       configMap: dnation-logo
-      readOnly: true
+    - name: dnation-home
+      mountPath: /usr/share/grafana/public/dashboards/home.json
+      subPath: home.json
+      configMap: dnation-home
+    extraSecretMounts:
+    - name: dnation-brand
+      mountPath: /etc/secrets
+      secretName: dnation-brand
+      defaultMode: 0755
 
     ## Sidecar that collects the configmaps with specified label and stores them into the respective folders
     ##
