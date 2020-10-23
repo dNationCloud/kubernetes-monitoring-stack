@@ -3,8 +3,10 @@
 apiVersion: certmanager.k8s.io/v1alpha1
 kind: Certificate
 metadata:
-  name: {{ .Release.Name }}-monitoring
-  namespace: {{ $.Release.Namespace }}
+  name: dnation-certificate
+  namespace: {{ include "k8s-monitoring-stack.namespace" . }}
+  labels:
+    app: {{ include "k8s-monitoring-stack.name" . }}
 spec:
   secretName: {{ .Values.dNation.certificate.secretName }}
   issuerRef:

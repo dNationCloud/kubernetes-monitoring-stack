@@ -76,6 +76,14 @@ Install K8s m8g stack
 helm install monitoring chart --dependency-update -f helpers/values-kind.yaml
 ```
 
+## dNation Brand
+
+dNation uses re-branded version of Grafana. This is done by basic script which needs to be mounted as k8s [secret](../chart/templates/dnation/brand.yaml).
+Raw form of scrips is available [here](dnation_brand.sh). If you want to re-generate k8s secret use following:
+```bash
+kubectl create secret generic dnation-brand --from-file=helpers/dnation_brand.sh --dry-run -o yaml
+```
+
 ## Node Exporter
 
 Bash script to install Node Exporter v0.18.1 on your Ubuntu host.
