@@ -24,7 +24,7 @@ dependencies:
   condition: loki-stack.enabled
 - name: dnation-kubernetes-monitoring
   version: "1.0.*"
-  repository: https://nexus.ifne.eu/repository/ifne-helm-public/
+  repository: https://dnationcloud.github.io/helm-hub
   condition: dnation-kubernetes-monitoring.enabled
 icon: https://storage.googleapis.com/ifne.eu/public/icons/dnation_k8sm8g.png
 maintainers:
