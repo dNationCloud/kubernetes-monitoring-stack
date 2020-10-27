@@ -1,4 +1,4 @@
-<a href="https://dnation.cloud/"><img width="250" alt="dNationCloud" src="https://storage.googleapis.com/ifne.eu/public/icons/dnation.png"></a>
+<a href="https://dnation.cloud/"><img width="250" alt="dNationCloud" src="https://cdn.ifne.eu/public/icons/dnation.png"></a>
 
 # dNation Kubernetes Monitoring Stack
 
