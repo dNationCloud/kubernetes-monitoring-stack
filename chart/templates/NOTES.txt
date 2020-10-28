@@ -1,6 +1,4 @@
 dNation Kubernetes Monitoring Stack has been installed.
-Check its status by running:
-    kubectl --namespace {{ .Release.Namespace }} get pods
      _ _   _       _   _                __  __             _ _             _                _____ _             _
     | | \ | |     | | (_)              |  \/  |           (_) |           (_)              / ____| |           | |
   __| |  \| | __ _| |_ _  ___  _ __    | \  / | ___  _ __  _| |_ ___  _ __ _ _ __   __ _  | (___ | |_ __ _  ___| | __
@@ -9,3 +7,24 @@ Check its status by running:
  \__,_|_| \_|\__,_|\__|_|\___/|_| |_|  |_|  |_|\___/|_| |_|_|\__\___/|_|  |_|_| |_|\__, | |_____/ \__\__,_|\___|_|\_\
                                                                                     __/ |
 Visit https://www.dNation.cloud/ for detailed information                          |___/
+
+1. Check its status by running:
+
+    kubectl --namespace {{ template "k8s-monitoring-stack.namespace" . }} get pods
+
+2. Get your '{{ index .Values "kube-prometheus-stack" "grafana" "adminUser" }}' user password by running:
+
+    kubectl --namespace {{ template "k8s-monitoring-stack.namespace" . }} get secret {{ .Release.Name }}-grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+
+3. If you didn't modify the default values the Grafana server is exposed by ClusterIP service and can be accessed via port 80 on the following DNS name from within your cluster:
+
+     {{ .Release.Name }}-grafana.{{ template "k8s-monitoring-stack.namespace" . }}.svc.cluster.local
+
+   Use Port Forwarding if you want to access the Grafana server from outside your cluster:
+
+     export POD_NAME=$(kubectl get pods --namespace {{ template "k8s-monitoring-stack.namespace" . }} -l "app.kubernetes.io/name=grafana,app.kubernetes.io/instance={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
+     kubectl --namespace {{ template "k8s-monitoring-stack.namespace" . }} port-forward $POD_NAME 3000
+
+4. Login with the password from step 2 and the username: '{{ index .Values "kube-prometheus-stack" "grafana" "adminUser" }}'
+
+5. Search for `Kubernetes Monitoring` dashboard in the `dNation` directory. The fun starts here :)
