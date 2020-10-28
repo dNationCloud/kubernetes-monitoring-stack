@@ -59,9 +59,9 @@ loki-stack:
 kube-prometheus-stack:
   enabled: true
 
-  ## Override the default value of 'app' label used by k8s objects
+  ## Provide a name to substitute for the full names of resources
   ##
-  nameOverride: prom-op
+  fullnameOverride: kube-prometheus
 
   ## Default rules for monitoring the cluster
   ##
@@ -144,7 +144,7 @@ kube-prometheus-stack:
     - name: cluster-metrics
       isDefault: false
       type: prometheus
-      url: "{{ .Release.Name }}-prom-op-prometheus:9090"
+      url: "kube-prometheus-prometheus:9090"
     - name: cluster-logs
       isDefault: false
       type: loki
@@ -152,7 +152,7 @@ kube-prometheus-stack:
     - name: cluster-alerts
       isDefault: false
       type: camptocamp-prometheus-alertmanager-datasource
-      url: "{{ .Release.Name }}-prom-op-alertmanager:9093"
+      url: "kube-prometheus-alertmanager:9093"
       jsonData:
         severity_critical: critical
         severity_high: high
