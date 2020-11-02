@@ -53,6 +53,30 @@ Manual setup in case of already running K8s deployment.
     kubectl -n kube-system delete po -l k8s-app=kube-proxy
     ```
 
+* Setup `scheduler` metrics bind address
+    ```bash
+    # On k8s master node
+    cd /etc/kubernetes/manifests/
+    sudo vim kube-scheduler.yaml
+    # Edit bind-address and port command options
+    ...
+    - --bind-address=0.0.0.0
+    - --port=10251
+    ...
+    ```
+
+* Setup `controller-manager` metrics bind address
+    ```bash
+    # On k8s master node
+    cd /etc/kubernetes/manifests/
+    sudo vim kube-controller-manager.yaml
+    # Edit bind-address and port command options
+    ...
+    - --bind-address=0.0.0.0
+    - --port=10252
+    ...
+    ```
+
 ## Installation of dnation-kubernetes-monitoring-stack skips unknown hook "crd-install". Has the stack been installed successfully?
 
 Yes, You can safely ignore this message. This hook is still part of the kube-prometheus-stack subchart because Helm 2 support is not yet finished.
