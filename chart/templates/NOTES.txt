@@ -28,4 +28,4 @@ If you're experiencing issues please read [FAQ](https://github.com/dNationCloud/
 
 4. Login with the password from step 2 and the username: '{{ index .Values "kube-prometheus-stack" "grafana" "adminUser" }}'
 
-5. Search for `Kubernetes Monitoring` dashboard in the `dNation` directory. The fun starts here :)
+5. Search for `Monitoring` dashboard in the `dNation` directory. The fun starts here :)

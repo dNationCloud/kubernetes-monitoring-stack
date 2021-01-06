@@ -16,7 +16,7 @@ Create KinD cluster
 kind create cluster --config helpers/kind_cluster_config.yaml --image kindest/node:v1.19.1
 ```
 
-Install K8s m8g stack
+Install Kubernetes Monitoring Stack
 * Grafana UI is exposed on port `5000`, see http://localhost:5000
 * Prometheus UI is exposed on port `5001`, see http://localhost:5001
 * Prometheus Alertmanager UI is exposed on port `5002`, see http://localhost:5002

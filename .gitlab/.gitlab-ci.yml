@@ -47,10 +47,10 @@ test lint:
   extends: .base
   before_script:
     - git fetch -p
-    - git checkout origin/cicd/values-dnation -- values-dnation.yaml
+    - git checkout origin/cicd/values-dnation -- values-dnation-prod.yaml
   script:
     - helm lint chart -f chart/values.yaml
-    - helm lint chart -f values-dnation.yaml
+    - helm lint chart -f values-dnation-prod.yaml
 
 test install k8s v1.17.5:
   stage: test
@@ -87,9 +87,9 @@ deploy:
     - helm repo update
     - helm search repo ifne
     - git fetch -p
-    - git checkout origin/cicd/values-dnation -- values-dnation.yaml
+    - git checkout origin/cicd/values-dnation -- values-dnation-prod.yaml
   script:
-    - helm upgrade --install monitoring ifne/dnation-kubernetes-monitoring-stack -f values-dnation.yaml
+    - helm upgrade --install monitoring ifne/dnation-kubernetes-monitoring-stack -f values-dnation-prod.yaml
   environment:
     name: production
     url: "$KUBE_URL"
