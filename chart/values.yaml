@@ -19,19 +19,22 @@ fullnameOverride: ""
 dnation-kubernetes-monitoring:
   enabled: true
 
-  ## Label of Grafana dashboard resource used for target discovery
-  ## ref: https://github.com/prometheus-community/helm-charts/blob/main/charts/kube-prometheus-stack/values.yaml#L552
+  ## Deploy a Grafana dashboards and Prometheus rules for cluster monitoring
   ##
-  dashboardLabel:
-    name: grafana_dashboard
-    value: '1'
+  clusterMonitoring:
+    enabled: true
+
+  ## Label of Grafana dashboard resource used for target discovery
+  ##
+  grafanaDashboards:
+    labelGrafana:
+      grafana_dashboard: '1'
 
   ## Label of Prometheus rule resource used for target discovery
-  ## ref: https://github.com/prometheus-community/helm-charts/blob/main/charts/kube-prometheus-stack/values.yaml#L1735
   ##
-  ruleLabel:
-    name: prometheus_rule
-    value: '1'
+  prometheusRules:
+    labelPrometheus:
+      prometheus_rule: '1'
 
 ## Deploy a loki-stack
 ## ref: https://github.com/grafana/loki/tree/master/production/helm/loki-stack
@@ -71,6 +74,18 @@ kube-prometheus-stack:
     labels:
       prometheus_rule: '1'
 
+    ## Disable some kube-prometheus-stack default rules
+    ## They are replaced by rules in the kubernetes monitoring project
+    ##
+    rules:
+      general: false
+      kubernetesStorage: false
+
+    ## Add custom rule label
+    ##
+    additionalRuleLabels:
+      alertgroup: Cluster
+
   ## Deploy a Prometheus instance
   ##
   prometheus:
@@ -80,6 +95,16 @@ kube-prometheus-stack:
       ruleSelector:
         matchLabels:
           prometheus_rule: '1'
+
+  ## Configuration for prometheus-node-exporter subchart
+  ##
+  prometheus-node-exporter:
+    ## Extra args extended with `rootfs`, `squashfs` and `nsfs` file systems
+    ## For default extra args see ref: https://github.com/prometheus-community/helm-charts/blob/main/charts/kube-prometheus-stack/values.yaml#L1220
+    ##
+    extraArgs:
+      - --collector.filesystem.ignored-mount-points=^/(dev|proc|sys|var/lib/docker/.+)($|/)
+      - --collector.filesystem.ignored-fs-types=^(rootfs|squashfs|nsfs|autofs|binfmt_misc|cgroup|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|sysfs|tracefs)$
 
   ## Deploy a Grafana instance
   ##
