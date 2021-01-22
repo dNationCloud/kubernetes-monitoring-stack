@@ -8,7 +8,7 @@ An umbrella helm chart for [dNation Kubernetes Monitoring](https://github.com/dN
 
 * [dnation-kubernetes-monitoring](https://github.com/dNationCloud/kubernetes-monitoring)
 * [kube-prometheus-stack](https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack)
-* [loki-stack](https://github.com/grafana/loki/tree/master/production/helm/loki-stack)
+* [loki-stack](https://github.com/grafana/helm-charts/tree/main/charts/loki-stack)
 
 # Installation
 Prerequisites
