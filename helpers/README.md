@@ -13,15 +13,18 @@ Prerequisites
 
 Create KinD cluster
 ```bash
-kind create cluster --config helpers/kind_cluster_config.yaml --image kindest/node:v1.19.1
+kind create cluster --config helpers/kind_cluster_config.yaml --image kindest/node:v1.20.2
 ```
 
 Install Kubernetes Monitoring Stack
-* Grafana UI is exposed on port `5000`, see http://localhost:5000
-* Prometheus UI is exposed on port `5001`, see http://localhost:5001
-* Prometheus Alertmanager UI is exposed on port `5002`, see http://localhost:5002
 ```bash
-helm install monitoring chart --dependency-update -f helpers/values-kind.yaml
+helm install monitoring chart --dependency-update
+```
+
+Follow installation notes and use Port Forwarding if you want to access the Grafana server from outside your KinD cluster
+```bash
+export POD_NAME=$(kubectl get pods --namespace default -l "app.kubernetes.io/name=grafana,app.kubernetes.io/instance=monitoring" -o jsonpath="{.items[0].metadata.name}")
+kubectl --namespace default port-forward $POD_NAME 3000
 ```
 
 ## dNation Brand
@@ -30,12 +33,4 @@ dNation uses re-branded version of Grafana. This is done by basic script which n
 Raw form of scrips is available [here](dnation_brand.sh). If you want to re-generate k8s secret use following:
 ```bash
 kubectl create secret generic dnation-brand --from-file=helpers/dnation_brand.sh --dry-run -o yaml
-```
-
-## Node Exporter
-
-Bash script to install Node Exporter v0.18.1 on your Ubuntu host.
-
-```bash
-./helpers/node_exporter.sh
 ```
