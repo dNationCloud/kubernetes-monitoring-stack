@@ -26,7 +26,7 @@ helm install dnation-kubernetes-monitoring-stack dnationcloud/dnation-kubernetes
 
 Search for `Monitoring` dashboard in the `dNation` directory. The fun starts here :).
 If you want to set the `Monitoring` dashboard as a home dashboard follow [here](https://grafana.com/docs/grafana/latest/administration/change-home-dashboard/#set-the-default-dashboard-through-preferences).
-If you're experiencing issues please read [FAQ](helpers/FAQ.md).
+If you're experiencing issues please read the [documentation](https://dnationcloud.github.io/kubernetes-monitoring/docs/documentation) and [FAQ](https://dnationcloud.github.io/kubernetes-monitoring/helpers/FAQ/).
 
 # Contribution guidelines
 If you want to contribute, please read following:

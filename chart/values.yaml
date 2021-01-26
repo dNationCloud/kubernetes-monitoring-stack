@@ -96,6 +96,16 @@ kube-prometheus-stack:
         matchLabels:
           prometheus_rule: '1'
 
+  ## Component scraping etcd
+  ##
+  kubeEtcd:
+    ## Etcd service
+    ## ref: https://dnationcloud.github.io/kubernetes-monitoring/helpers/FAQ/#kubernetes-monitoring-shows-down-state-for-some-control-plane-components-are-control-plane-components-working-correctly
+    ##
+    service:
+      port: 2381
+      targetPort: 2381
+
   ## Configuration for prometheus-node-exporter subchart
   ##
   prometheus-node-exporter:
