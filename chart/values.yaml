@@ -180,6 +180,8 @@ kube-prometheus-stack:
       isDefault: false
       type: prometheus
       url: "kube-prometheus-prometheus:9090"
+      jsonData:
+        httpMethod: POST
     - name: cluster-logs
       isDefault: false
       type: loki
