@@ -1,6 +1,6 @@
 apiVersion: v2
 name: dnation-kubernetes-monitoring-stack
-version: 1.1.0
+version: 1.1.1
 appVersion: 1.1.0  # dnation-kubernetes-monitoring
 description: An umbrella helm chart for Kubernetes monitoring based on kube-prometheus-stack, loki-stack and dnation-kubernetes-monitoring.
 keywords:
