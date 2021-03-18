@@ -218,7 +218,7 @@ kube-prometheus-stack:
 
 extraSecrets: []
   # - name: addsecret
-  #   data: 
+  #   data:
   #     auth-extra-groups: auth_group
   #     expiration: exp
   #     token-id: idtoken
