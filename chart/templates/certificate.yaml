@@ -1,3 +1,26 @@
+{{- if .Values.extraCertificates }}
+{{- range .Values.extraCertificates }}
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ .name }}
+  namespace: {{ include "k8s-monitoring-stack.namespace" $ }}
+  labels:
+    app: {{ include "k8s-monitoring-stack.name" $ }}
+spec:
+  secretName: {{ .secretName }}
+  issuerRef:
+    name: {{ .issuer }}
+  commonName: {{ .commonName }}
+  dnsNames:
+  {{- range .hosts }}
+  - {{ . }}
+  {{- end }}
+---
+{{- end }}
+{{- end }}
+# Add dNation certificate
+---
 {{- if .Values.dNation }}
 {{- if .Values.dNation.certificate }}
 apiVersion: cert-manager.io/v1

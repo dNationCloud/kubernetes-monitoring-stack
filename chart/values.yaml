@@ -215,3 +215,27 @@ kube-prometheus-stack:
         target_match:
           severity: 'warning'
         equal: ['alertname']
+
+extraSecrets: []
+  # - name: addsecret
+  #   data: 
+  #     auth-extra-groups: auth_group
+  #     expiration: exp
+  #     token-id: idtoken
+
+extraCertificates: []
+  # - name: newCertificate
+  #   secretName: name
+  #   issuer: issuer
+  #   commonName: common_name
+  #   hosts: [
+  #     www.aaa.bb,
+  #   ]
+
+extraConfigmaps: []
+  # - name: load-configmap
+  #   data:
+  #     load_configmap.json: |-
+  #       {
+  #         ...
+  #       }
