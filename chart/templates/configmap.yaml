@@ -1,0 +1,14 @@
+{{- if .Values.extraConfigmaps }}
+{{- range .Values.extraConfigmaps }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .name }}
+  namespace: {{ include "k8s-monitoring-stack.namespace" $ }}
+  labels:
+    app: {{ include "k8s-monitoring-stack.name" $ }}
+data:
+{{ .data | toYaml | indent 4 }}
+---
+{{- end }}
+{{- end }}
