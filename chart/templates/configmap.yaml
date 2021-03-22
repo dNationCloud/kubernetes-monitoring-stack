@@ -1,4 +1,3 @@
-{{- if .Values.extraConfigmaps }}
 {{- range .Values.extraConfigmaps }}
 apiVersion: v1
 kind: ConfigMap
@@ -10,5 +9,4 @@ metadata:
 data:
 {{ .data | toYaml | indent 4 }}
 ---
-{{- end }}
 {{- end }}
