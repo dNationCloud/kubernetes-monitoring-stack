@@ -22,6 +22,7 @@ keywords:
 - dnation
 - kubernetes
 - monitoring
+- logging
 - prometheus
 - grafana
 - loki
