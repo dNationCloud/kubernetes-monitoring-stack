@@ -31,6 +31,17 @@ Search for `Monitoring` dashboard in the `dNation` directory. The fun starts her
 If you want to set the `Monitoring` dashboard as a home dashboard follow [here](https://grafana.com/docs/grafana/latest/administration/change-home-dashboard/#set-the-default-dashboard-through-preferences).
 If you're experiencing issues please read the [documentation](https://dnationcloud.github.io/kubernetes-monitoring/docs/documentation) and [FAQ](https://dnationcloud.github.io/kubernetes-monitoring/helpers/FAQ/).
 
+# Kubernetes support (tested)
+
+||dNation monitoring v1.3|dNation monitoring v1.4|
+|-|-|-|
+|Kubernetes v1.17|✓||
+|Kubernetes v1.18|✓||
+|Kubernetes v1.19|✓||
+|Kubernetes v1.20|✓||
+|Kubernetes v1.21||✓|
+|Kubernetes v1.22||✓|
+
 # Contribution guidelines
 If you want to contribute, please read following:
 1. [Contribution Guidelines](CONTRIBUTING.md)
