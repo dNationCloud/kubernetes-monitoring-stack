@@ -16,6 +16,8 @@ An umbrella helm chart for [dNation Kubernetes Monitoring](https://github.com/dN
 # Installation
 Prerequisites
 * [Helm3](https://helm.sh/)
+* For production environment we recommend (based on our experience) a kubernetes cluster with at least 2 worker nodes and 4 GiB RAM per node or more.
+
 
 dNation Kubernetes Monitoring Stack umbrella chart is hosted in the [dNation helm repository](https://artifacthub.io/packages/search?repo=dnationcloud).
 ```bash
