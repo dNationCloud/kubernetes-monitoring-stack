@@ -1,0 +1,8 @@
+kube-prometheus-stack:
+  kubeScheduler:
+    serviceMonitor:
+      insecureSkipVerify: true
+
+  kubeControllerManager:
+    serviceMonitor:
+     insecureSkipVerify: true

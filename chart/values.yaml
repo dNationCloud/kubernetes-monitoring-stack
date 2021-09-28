@@ -111,6 +111,34 @@ kube-prometheus-stack:
         matchLabels:
           prometheus_rule: '1'
 
+  ## Component scraping scheduler
+  ## ref: https://dnationcloud.github.io/kubernetes-monitoring/helpers/FAQ/#kubernetes-monitoring-shows-down-state-for-some-control-plane-components-are-control-plane-components-working-correctly
+  ##
+  kubeScheduler:
+    service:
+      port: 10259
+      targetPort: 10259
+    serviceMonitor:
+      https: true
+      ## Skip TLS certificate validation when scraping
+      # insecureSkipVerify: true
+      ## Name of the server to use when validating TLS certificate
+      # serverName: null
+
+  ## Component scraping controller manager
+  ## ref: https://dnationcloud.github.io/kubernetes-monitoring/helpers/FAQ/#kubernetes-monitoring-shows-down-state-for-some-control-plane-components-are-control-plane-components-working-correctly
+  ##
+  kubeControllerManager:
+    service:
+      port: 10257
+      targetPort: 10257
+    serviceMonitor:
+      https: true
+      ## Skip TLS certificate validation when scraping
+      # insecureSkipVerify: true
+      ## Name of the server to use when validating TLS certificate
+      # serverName: null
+
   ## Component scraping etcd
   ##
   kubeEtcd:
@@ -194,7 +222,7 @@ kube-prometheus-stack:
     - name: cluster-metrics
       isDefault: false
       type: prometheus
-      url: "kube-prometheus-prometheus:9090"
+      url: "http://kube-prometheus-prometheus:9090"
       jsonData:
         httpMethod: POST
     - name: cluster-logs
