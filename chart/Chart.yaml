@@ -34,6 +34,10 @@ dependencies:
   version: "13.9.*"
   repository: https://prometheus-community.github.io/helm-charts
   condition: kube-prometheus-stack.enabled
+- name: thanos
+  version: "6.0.*"
+  repository: https://charts.bitnami.com/bitnami
+  condition: thanos.enable
 - name: loki-stack
   version: "2.4.*"
   repository: https://grafana.github.io/helm-charts
@@ -42,6 +46,7 @@ dependencies:
   version: "1.3.*"
   repository: https://dnationcloud.github.io/helm-hub
   condition: dnation-kubernetes-monitoring.enabled
+
 icon: https://cdn.ifne.eu/public/icons/dnation_k8sm8g.png
 maintainers:
 - name: dNation
