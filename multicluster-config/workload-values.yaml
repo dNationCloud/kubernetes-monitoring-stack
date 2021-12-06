@@ -1,0 +1,49 @@
+thanosStorage:
+  secret:
+    name: thanos-objstore-config
+    key: objstore.yml
+  # More details about supported storage types and config options can be found here: https://thanos.io/tip/thanos/storage.md/
+  config: ""
+
+thanos:
+  enabled: true
+  existingObjstoreSecret: thanos-objstore-config
+  queryFrontend:
+    enabled: false
+  query:
+    dnsDiscovery:
+      sidecarsService: kube-prometheus-thanos-discovery
+      sidecarsNamespace: "{{ .Release.Namespace }}"
+    # TODO: properly secure communication between workload and observer cluster queriers
+    service:
+      type: NodePort
+      grpc:
+        nodePort: 30901
+  bucketweb:
+    enabled: true
+  compactor:
+    enabled: true
+  storegateway:
+    enabled: true
+  ruler:
+    enabled: false
+
+kube-prometheus-stack:
+  enabled: true
+  alertmanager:
+    enabled: false
+  grafana:
+    enabled: false
+  prometheus: 
+    prometheusSpec:
+      externalLabels:
+        # !IMPORTANT: each cluster must have prometheus external label 'cluster' with unique value.
+        # This will be used as cluster discriminator when metrics are aggregated on observer cluster.
+        cluster: "workload-cluster"
+      replicas: 2
+      thanos:
+        objectStorageConfig: 
+          name: thanos-objstore-config
+          key: objstore.yml
+    thanosService: 
+      enabled: true
