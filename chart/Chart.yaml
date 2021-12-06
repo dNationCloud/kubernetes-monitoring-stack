@@ -37,7 +37,7 @@ dependencies:
 - name: thanos
   version: "6.0.*"
   repository: https://charts.bitnami.com/bitnami
-  condition: thanos.enable
+  condition: thanos.enabled
 - name: loki-stack
   version: "2.4.*"
   repository: https://grafana.github.io/helm-charts

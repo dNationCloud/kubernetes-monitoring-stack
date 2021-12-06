@@ -28,6 +28,11 @@ namespaceOverride: ""
 ##
 fullnameOverride: ""
 
+## Thanos is currently used only for multicluster setup
+thanos:
+  enabled: false
+  fullnameOverride: "thanos"
+
 ## Deploy a dnation-kubernetes-monitoring
 ## ref: https://github.com/dNationCloud/kubernetes-monitoring
 ##

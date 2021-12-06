@@ -1,0 +1,111 @@
+thanosStorage:
+  secret:
+    name: thanos-objstore-config
+    key: objstore.yml
+  # More details about supported storage types and config options can be found here: https://thanos.io/tip/thanos/storage.md/
+  config: ""
+
+thanos:
+  enabled: true
+  existingObjstoreSecret: thanos-objstore-config
+  queryFrontend:
+    enabled: true
+  query:
+    replicaLabel:
+      - prometheus_replica
+    # logLevel: debug
+    dnsDiscovery:
+      sidecarsService: kube-prometheus-thanos-discovery
+      sidecarsNamespace: "{{ .Release.Namespace }}"
+    # URLs of exposed Thanos query components on remote workload clusters
+    stores: []
+  bucketweb:
+    enabled: true
+  compactor:
+    enabled: true
+  storegateway:
+    enabled: true
+  ruler:
+    enabled: true
+    # logLevel: debug
+    replicaLabel: ruler_replica
+    clusterName: observer
+    alertmanagers:
+      - http://dns+alertmanager-operated:9093
+    # TODO: Investigate how to properly configure rules for thanos ruler at scale
+    config: |-
+      groups:
+        - name: "metamonitoring"
+          rules:
+            - alert: "PrometheusDown"
+              expr: absent(up{cluster="observer-cluster", prometheus="monitoring/kube-prometheus-stack-prometheus"})
+
+kube-prometheus-stack:
+  enabled: true
+  alertmanager:
+    alertmanagerSpec:
+      replicas: 3
+    servicePerReplica:
+      enabled: true
+  grafana:
+    # TODO: Check if it's ok to setup grafana in HA mode as is, i.e. if all the data are loaded only through provisioning, 
+    # so internal sqlite database isn't utilized. 
+    # Otherwise if we want to setup grafana in HA mode with shared backend DB, we need to setup external DB (also in HA).
+    # More details here: https://grafana.com/docs/grafana/latest/administration/set-up-for-high-availability/
+    # replicas: 2
+    ingress:
+      enabled: true
+      hosts: []
+    sidecar:
+      dashboards:
+        # TODO: Investigate the following warning, after running helm upgrade/install/template:
+        # coalesce.go:202: warning: destination for multicluster is a table. Ignoring non-table value false
+        multicluster:
+          global:
+            enabled: true
+          etcd:
+            enabled: true
+    additionalDataSources:
+      - name: cluster-metrics
+        isDefault: false
+        type: prometheus
+        url: "kube-prometheus-prometheus:9090"
+        jsonData:
+          httpMethod: POST
+      - name: cluster-logs
+        isDefault: false
+        type: loki
+        url: "{{ .Release.Name }}-loki:3100"
+      - name: cluster-alerts
+        isDefault: false
+        type: camptocamp-prometheus-alertmanager-datasource
+        url: "kube-prometheus-alertmanager:9093"
+        jsonData:
+          severity_critical: critical
+          severity_high: high
+          severity_warning: warning
+          severity_info: info
+      - name: thanos
+        type: prometheus
+        access: proxy
+        url: "thanos-query-frontend:9090"
+  prometheus: 
+    prometheusSpec:
+      # !IMPORTANT: each cluster must have prometheus external label 'cluster' with unique value.
+      # This will be used as cluster discriminator when metrics are aggregated on observer cluster.
+      externalLabels: 
+        cluster: "observer-cluster"
+      replicas: 2
+      # TODO: Investigate better way how to disable connection from prometheus to alertmanager. For cleaner design, alerting should be done only by ruler for all clusters.
+      alertingEndpoints:
+        - namespace: ""
+          name: ""
+          port: ""
+          pathPrefix: ""
+          apiVersion: ""
+      thanos:
+        objectStorageConfig: 
+          name: thanos-objstore-config
+          key: objstore.yml
+    thanosService: 
+      enabled: true
