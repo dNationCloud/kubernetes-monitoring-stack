@@ -1,0 +1,32 @@
+thanosStorage:
+  # More details about supported storage types and config options can be found here: https://thanos.io/tip/thanos/storage.md/
+  config: |-
+    type: S3
+    config:
+      endpoint: "<url-of-the-S3-endpoint>"
+      bucket: "<observer-bucket-name>"
+      access_key: "<access-key>"
+      secret_key: "<secret-key>"
+      insecure: false
+      signature_version2: false
+      part_size: 0
+
+thanos:
+  query:
+    # URLs of exposed Thanos query components on remote workload clusters
+    stores:
+      # TODO: properly secure communication between workload and observer cluster queriers
+      - <host-or-ip-of-workload-cluster1>:30901
+      - <host-or-ip-of-workload-cluster2>:30901
+
+kube-prometheus-stack:
+  prometheus: 
+    prometheusSpec:
+      # !IMPORTANT: each cluster must have prometheus external label 'cluster' with unique value.
+      # This will be used as cluster discriminator when metrics are aggregated on observer cluster.
+      externalLabels: 
+        cluster: "<observer-cluster-label>"
+  grafana:
+    ingress:
+      hosts:
+        - <grafana-endpoint>
