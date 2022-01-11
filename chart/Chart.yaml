@@ -39,7 +39,7 @@ dependencies:
   repository: https://grafana.github.io/helm-charts
   condition: loki-stack.enabled
 - name: dnation-kubernetes-monitoring
-  version: "1.3.*"
+  version: "1.4.*"
   repository: https://dnationcloud.github.io/helm-hub
   condition: dnation-kubernetes-monitoring.enabled
 icon: https://cdn.ifne.eu/public/icons/dnation_k8sm8g.png
