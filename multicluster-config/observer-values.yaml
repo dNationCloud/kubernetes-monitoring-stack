@@ -48,9 +48,6 @@ kube-prometheus-stack:
     servicePerReplica:
       enabled: true
   grafana:
-    # TODO: Check if it's ok to setup grafana in HA mode as is, i.e. if all the data are loaded only through provisioning, 
-    # so internal sqlite database isn't utilized. 
-    # Otherwise if we want to setup grafana in HA mode with shared backend DB, we need to setup external DB (also in HA).
     # More details here: https://grafana.com/docs/grafana/latest/administration/set-up-for-high-availability/
     # replicas: 2
     ingress:

@@ -59,11 +59,11 @@ kube-prometheus-stack:
       dashboards:
         # TODO: Investigate the following warning, after running helm upgrade/install/template:
         # coalesce.go:202: warning: destination for multicluster is a table. Ignoring non-table value false
-        multicluster:
-          global:
-            enabled: true
-          etcd:
-            enabled: true
+        multicluster: true
+#          global:
+#            enabled: true
+#          etcd:
+#            enabled: true
     additionalDataSources:
       - name: cluster-metrics
         isDefault: false
