@@ -11,7 +11,9 @@ An umbrella helm chart for [dNation Kubernetes Monitoring](https://github.com/dN
 
 * [dnation-kubernetes-monitoring](https://github.com/dNationCloud/kubernetes-monitoring)
 * [kube-prometheus-stack](https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack)
-* [loki-stack](https://github.com/grafana/helm-charts/tree/main/charts/loki-stack)
+* [loki](https://github.com/grafana/helm-charts/tree/main/charts/loki)
+* [loki-distributed](https://github.com/grafana/helm-charts/tree/main/charts/loki-distributed)
+* [promtail](https://github.com/grafana/helm-charts/tree/main/charts/promtail)
 
 # Installation
 Prerequisites
@@ -25,8 +27,13 @@ dNation Kubernetes Monitoring Stack umbrella chart is hosted in the [dNation hel
 helm repo add dnationcloud https://dnationcloud.github.io/helm-hub/
 helm repo update
 
-# Install dNation Kubernetes Monitoring Stack
-helm install dnation-kubernetes-monitoring-stack dnationcloud/dnation-kubernetes-monitoring-stack
+# Install dNation Kubernetes Monitoring Stack (Loki in monolithic mode)
+helm install monitoring dnationcloud/dnation-kubernetes-monitoring-stack
+
+# Install dNation Kubernetes Monitoring Stack (Loki in distributed mode with s3-compatible storage)
+helm install monitoring dnationcloud/dnation-kubernetes-monitoring-stack \
+  -f https://raw.githubusercontent.com/dNationCloud/kubernetes-monitoring-stack/main/chart/values-loki-distributed.yaml \
+  --set loki-distributed.loki.storageConfig.aws.s3="<s3 path-style URL with access and secret keys>"
 ```
 
 Search for `Monitoring` dashboard in the `dNation` directory. The fun starts here :).
