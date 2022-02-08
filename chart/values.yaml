@@ -51,25 +51,42 @@ dnation-kubernetes-monitoring:
     labelPrometheus:
       prometheus_rule: '1'
 
-## Deploy a loki-stack
-## ref: https://github.com/grafana/loki/tree/master/production/helm/loki-stack
+## Deploy a loki
+## ref: https://github.com/grafana/helm-charts/tree/main/charts/loki
 ##
-loki-stack:
+loki:
   enabled: true
 
-  ## Deploy a Loki instance
-  ##
+## Deploy a loki-distributed
+## with s3-compatible object storage
+## ref: https://github.com/grafana/helm-charts/tree/main/charts/loki-distributed
+##
+loki-distributed:
+  enabled: false
   loki:
-    persistence:
-      enabled: false
+    schemaConfig:
+      configs:
+        - from: 2020-09-07
+          store: boltdb-shipper
+          object_store: aws
+          schema: v11
+          index:
+            prefix: loki_index_
+            period: 24h
+    storageConfig:
+      boltdb_shipper:
+        shared_store: aws
+      aws:
+        s3: "s3://access_key:secret_access_key@custom_endpoint/bucket_name"
+        s3forcepathstyle: true  # set to 'false' to enable virtual-hosted-style URLs
 
-  ## Grafana deployment is managed by kube-prometheus-stack
-  ##
-  grafana:
-    enabled: false
-    sidecar:
-      datasources:
-        enabled: false
+# Deploy a promtail
+## ref: https://github.com/grafana/helm-charts/tree/main/charts/promtail
+##
+promtail:
+  enabled: true
+  config:
+    lokiAddress: "http://{{ .Release.Name }}-loki:3100/loki/api/v1/push"
 
 ## Deploy a kube-prometheus-stack
 ## ref: https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack
@@ -228,11 +245,11 @@ kube-prometheus-stack:
     - name: cluster-logs
       isDefault: false
       type: loki
-      url: "{{ .Release.Name }}-loki:3100"
+      url: "http://{{ .Release.Name }}-loki:3100"
     - name: cluster-alerts
       isDefault: false
       type: camptocamp-prometheus-alertmanager-datasource
-      url: "kube-prometheus-alertmanager:9093"
+      url: "http://kube-prometheus-alertmanager:9093"
       jsonData:
         severity_critical: critical
         severity_high: high
