@@ -24,12 +24,27 @@ loki:
 loki-distributed:
   enabled: true
 
+  # enable servicemonitors for prometheus scraping
+  serviceMonitor:
+    enabled: true
+    # relabel job to name of loki component
+    relabelings:
+      - targetLabel: job
+        sourceLabels:
+          - __meta_kubernetes_service_label_app_kubernetes_io_component
+
 promtail:
   config:
     # similar to value from values.yaml, only that 'loki' is replaced by 'loki-distributed-gateway'
     lokiAddress: "http://{{ .Release.Name }}-loki-distributed-gateway/loki/api/v1/push"
 
 kube-prometheus-stack:
+  prometheus:
+    prometheusSpec:
+      # loki-distributed doesn't have proper labels so it doesn't match default prometheus serviceMonitorSelector
+      # https://stackoverflow.com/questions/69466567/why-is-it-that-my-prometheus-operator-servicemonitor-needs-a-release-label-to
+      serviceMonitorSelectorNilUsesHelmValues: false
+
   grafana:
     additionalDataSources:
     # list of datasources from values.yaml, only that 'loki:3100' is replaced by 'loki-distributed-gateway'
