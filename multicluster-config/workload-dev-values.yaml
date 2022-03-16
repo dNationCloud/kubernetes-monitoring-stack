@@ -8,8 +8,8 @@ thanos:
       sidecarsNamespace: "{{ .Release.Namespace }}"
     service:
       type: NodePort
-      grpc:
-        nodePort: 30901
+      nodePorts:
+        grpc: 30901
   bucketweb:
     enabled: false
   compactor:

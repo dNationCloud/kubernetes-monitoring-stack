@@ -26,22 +26,26 @@ thanos:
   storegateway:
     enabled: true
   ruler:
-    enabled: true
+    enabled: false
     # logLevel: debug
-    replicaLabel: ruler_replica
-    clusterName: observer
-    alertmanagers:
-      - http://dns+alertmanager-operated:9093
-    # TODO: Investigate how to properly configure rules for thanos ruler at scale
-    config: |-
-      groups:
-        - name: "metamonitoring"
-          rules:
-            - alert: "PrometheusDown"
-              expr: absent(up{cluster="observer-cluster", prometheus="monitoring/kube-prometheus-stack-prometheus"})
+#    replicaLabel: ruler_replica
+#    clusterName: observer
+#    alertmanagers:
+#      - http://dns+alertmanager-operated:9093
+#    # TODO: Investigate how to properly configure rules for thanos ruler at scale
+#    config: |-
+#      groups:
+#        - name: "metamonitoring"
+#          rules:
+#            - alert: "PrometheusDown"
+#              expr: absent(up{cluster="observer-cluster", prometheus="monitoring/kube-prometheus-stack-prometheus"})
 
 kube-prometheus-stack:
   enabled: true
+  # disable because workloads prometheuses are not conencted to alertmanagers
+  defaultRules:
+    disabled:
+      PrometheusNotConnectedToAlertmanagers: true
   alertmanager:
     alertmanagerSpec:
       replicas: 3
@@ -55,8 +59,6 @@ kube-prometheus-stack:
       hosts: []
     sidecar:
       dashboards:
-        # TODO: Investigate the following warning, after running helm upgrade/install/template:
-        # coalesce.go:202: warning: destination for multicluster is a table. Ignoring non-table value false
         multicluster:
           global:
             enabled: true
@@ -66,7 +68,7 @@ kube-prometheus-stack:
       - name: cluster-metrics
         isDefault: false
         type: prometheus
-        url: "kube-prometheus-prometheus:9090"
+        url: "http://kube-prometheus-prometheus:9090"
         jsonData:
           httpMethod: POST
       - name: cluster-logs
@@ -83,26 +85,28 @@ kube-prometheus-stack:
           severity_warning: warning
           severity_info: info
       - name: thanos
+        isDefault: true
         type: prometheus
         access: proxy
-        url: "thanos-query-frontend:9090"
-  prometheus: 
+        url: "http://thanos-query-frontend:9090"
+  prometheus:
     prometheusSpec:
       # !IMPORTANT: each cluster must have prometheus external label 'cluster' with unique value.
       # This will be used as cluster discriminator when metrics are aggregated on observer cluster.
       externalLabels: 
         cluster: "observer-cluster"
       replicas: 2
-      # TODO: Investigate better way how to disable connection from prometheus to alertmanager. For cleaner design, alerting should be done only by ruler for all clusters.
-      alertingEndpoints:
-        - namespace: ""
-          name: ""
-          port: ""
-          pathPrefix: ""
-          apiVersion: ""
+#      # TODO: Investigate better way how to disable connection from prometheus to alertmanager. For cleaner design, alerting should be done only by ruler for all clusters.
+#      alertingEndpoints:
+#        - namespace: ""
+#          name: ""
+#          port: ""
+#          pathPrefix: ""
+#          apiVersion: ""
       thanos:
         objectStorageConfig: 
           name: thanos-objstore-config
           key: objstore.yml
+        logLevel: debug
     thanosService: 
       enabled: true

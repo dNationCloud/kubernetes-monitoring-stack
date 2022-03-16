@@ -15,10 +15,10 @@ thanos:
       sidecarsService: kube-prometheus-thanos-discovery
       sidecarsNamespace: "{{ .Release.Namespace }}"
     # TODO: properly secure communication between workload and observer cluster queriers
-    service:
-      type: NodePort
-      grpc:
-        nodePort: 30901
+#    service:
+#      type: NodePort
+#      nodePorts:
+#        grpc: 30901
   bucketweb:
     enabled: true
   compactor:
@@ -31,7 +31,7 @@ thanos:
 kube-prometheus-stack:
   enabled: true
   alertmanager:
-    enabled: false
+    enabled: true
   grafana:
     enabled: false
   prometheus: 
