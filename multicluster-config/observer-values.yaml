@@ -71,19 +71,14 @@ kube-prometheus-stack:
         url: "http://kube-prometheus-prometheus:9090"
         jsonData:
           httpMethod: POST
+#      - name: cluster-logs
+#        isDefault: false
+#        type: loki
+#        url: "{{ .Release.Name }}-loki:3100"
       - name: cluster-logs
         isDefault: false
         type: loki
-        url: "{{ .Release.Name }}-loki:3100"
-      - name: cluster-alerts
-        isDefault: false
-        type: camptocamp-prometheus-alertmanager-datasource
-        url: "kube-prometheus-alertmanager:9093"
-        jsonData:
-          severity_critical: critical
-          severity_high: high
-          severity_warning: warning
-          severity_info: info
+        url: "http://{{ .Release.Name }}-loki-gateway"
       - name: thanos
         isDefault: true
         type: prometheus

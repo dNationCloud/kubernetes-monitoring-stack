@@ -251,15 +251,6 @@ kube-prometheus-stack:
       isDefault: false
       type: loki
       url: "http://{{ .Release.Name }}-loki:3100"
-    - name: cluster-alerts
-      isDefault: false
-      type: camptocamp-prometheus-alertmanager-datasource
-      url: "http://kube-prometheus-alertmanager:9093"
-      jsonData:
-        severity_critical: critical
-        severity_high: high
-        severity_warning: warning
-        severity_info: info
     plugins:
     - camptocamp-prometheus-alertmanager-datasource 1.0.0
     - grafana-polystat-panel 1.2.11

@@ -5,6 +5,15 @@ thanosStorage:
   # More details about supported storage types and config options can be found here: https://thanos.io/tip/thanos/storage.md/
   config: ""
 
+#On workload cluster only promtail is installed
+loki:
+  enabled: false
+
+promtail:
+  config:
+    # similar to value from values.yaml, only that 'loki' is replaced by 'loki-distributed-gateway'
+    lokiAddress: "http://{{ .Release.Name }}-loki-distributed-gateway/loki/api/v1/push"
+
 thanos:
   enabled: true
   existingObjstoreSecret: thanos-objstore-config
