@@ -11,13 +11,34 @@ thanosStorage:
       signature_version2: true
       part_size: 0
 
-loki-stack:
-  promtail:
-    config:
-      client:
-        external_labels:
-          cluster: observer-cluster-label
 
+loki-distributed:
+  global:
+    dnsService: "coredns"
+  enabled: true
+  nameOverride: loki
+
+  gateway:
+    replicas: 1
+    ingress:
+      enabled: true
+      annotations:
+        nginx.ingress.kubernetes.io/use-regex: "true"
+        nginx.ingress.kubernetes.io/auth-type: basic
+        nginx.ingress.kubernetes.io/auth-secret: loki-basic-auth
+        nginx.ingress.kubernetes.io/auth-realm: 'Authentication Required'
+      hosts:
+      - host: david-loki.dnation.cloud
+        paths:
+        - path: /.*
+          pathType: ImplementationSpecific
+
+promtail:
+  config:
+    client:
+      external_labels:
+        cluster: observer-cluster-label
+    lokiAddress: "http://{{ .Release.Name }}-loki-gateway/loki/api/v1/push"
 
 thanos:
   global:
@@ -101,7 +122,7 @@ kube-prometheus-stack:
   alertmanager:
     alertmanagerSpec:
       replicas: 1
-      externalUrl: https://http://david-monitoring.k8s-h-dev.dnation.cloud:32080/
+      externalUrl: http://david-monitoring.k8s-h-dev.dnation.cloud:32080/
       storage:
         volumeClaimTemplate:
           spec:
@@ -136,6 +157,20 @@ kube-prometheus-stack:
           text: '{{ template "slack.custom.text" . }}'
     templateFiles:
       custom.tmpl: |-
+        {{ define "custom.alertOrigin" }}
+          {{- $cluster := "" }}
+          {{- range .CommonLabels.SortedPairs}}
+            {{- if eq .Name "cluster" }}
+              {{- $cluster = .Value }}
+            {{- end }}
+          {{- end }}
+          {{- if eq $cluster "" }}
+            {{- .ExternalURL | reReplaceAll ".*://|:[0-9]*" "" }}
+          {{- else }}
+            {{- $cluster | reReplaceAll ".*://|:[0-9]*" "" }}
+          {{- end }}
+        {{- end }}
+        
         {{ define "custom.hostName" }}
           {{- .ExternalURL | reReplaceAll ".*://|:[0-9]*" "" }}
         {{- end }}
@@ -356,7 +391,7 @@ kube-prometheus-stack:
         {{ define "slack.custom.title" }}
           {{- if .Alerts.Resolved }}RESOLVED {{ else }}
             {{- range .CommonLabels.SortedPairs}}{{ if eq .Name "severity" }}{{ .Value | toUpper }} {{ end }}{{ end }}
-          {{- end }}from {{ template "custom.hostName" . }}
+          {{- end }}from {{ template "custom.alertOrigin" . }}
         {{- end }}
 
         {{ define "slack.custom.color" }}
@@ -397,7 +432,7 @@ kube-prometheus-stack:
           {{- end }}
           Labels:
           {{- range .Labels.SortedPairs }}
-            {{- if or (eq .Name "job") (or (eq .Name "severity") (or (eq .Name "namespace") (or (eq .Name "container") (eq .Name "pod")))) }}
+            {{- if or (eq .Name "job") (or (eq .Name "severity") (or (eq .Name "namespace") (or (eq .Name "container")  (or (eq .Name "pod") (eq .Name "cluster"))))) }}
             • *{{ .Name }}*: `{{ .Value }}`
             {{- else if eq .Name "alertname" }}
             • *{{ .Name }}*: **`{{ .Value }}`**

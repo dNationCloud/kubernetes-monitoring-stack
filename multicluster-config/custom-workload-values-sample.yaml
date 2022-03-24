@@ -63,7 +63,7 @@ kube-prometheus-stack:
 
   alertmanager:
     alertmanagerSpec:
-      externalUrl: https://http://david-monitoring.k8s-h-dev.dnation.cloud:32080/
+      externalUrl: http://david-monitoring.k8s-h-dev.dnation.cloud:32080/
       storage:
         volumeClaimTemplate:
           spec:
@@ -98,6 +98,20 @@ kube-prometheus-stack:
           text: '{{ template "slack.custom.text" . }}'
     templateFiles:
       custom.tmpl: |-
+        {{ define "custom.alertOrigin" }}
+          {{- $cluster := "" }}
+          {{- range .CommonLabels.SortedPairs}}
+            {{- if eq .Name "cluster" }}
+              {{- $cluster = .Value }}
+            {{- end }}
+          {{- end }}
+          {{- if eq $cluster "" }}
+            {{- .ExternalURL | reReplaceAll ".*://|:[0-9]*" "" }}
+          {{- else }}
+            {{- $cluster | reReplaceAll ".*://|:[0-9]*" "" }}
+          {{- end }}
+        {{- end }}
+        
         {{ define "custom.hostName" }}
           {{- .ExternalURL | reReplaceAll ".*://|:[0-9]*" "" }}
         {{- end }}
@@ -318,7 +332,7 @@ kube-prometheus-stack:
         {{ define "slack.custom.title" }}
           {{- if .Alerts.Resolved }}RESOLVED {{ else }}
             {{- range .CommonLabels.SortedPairs}}{{ if eq .Name "severity" }}{{ .Value | toUpper }} {{ end }}{{ end }}
-          {{- end }}from {{ template "custom.hostName" . }}
+          {{- end }}from {{ template "custom.alertOrigin" . }}
         {{- end }}
 
         {{ define "slack.custom.color" }}
@@ -359,7 +373,7 @@ kube-prometheus-stack:
           {{- end }}
           Labels:
           {{- range .Labels.SortedPairs }}
-            {{- if or (eq .Name "job") (or (eq .Name "severity") (or (eq .Name "namespace") (or (eq .Name "container") (eq .Name "pod")))) }}
+            {{- if or (eq .Name "job") (or (eq .Name "severity") (or (eq .Name "namespace") (or (eq .Name "container")  (or (eq .Name "pod") (eq .Name "cluster"))))) }}
             • *{{ .Name }}*: `{{ .Value }}`
             {{- else if eq .Name "alertname" }}
             • *{{ .Name }}*: **`{{ .Value }}`**

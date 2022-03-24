@@ -24,6 +24,20 @@ loki:
 loki-distributed:
   enabled: true
 
+  # enable servicemonitors for prometheus scraping
+  serviceMonitor:
+    enabled: true
+    # relabel job to name of loki component
+    relabelings:
+      - targetLabel: component
+        sourceLabels:
+          - __meta_kubernetes_service_label_app_kubernetes_io_component
+      - targetLabel: job
+        sourceLabels:
+          - __meta_kubernetes_service_label_app_kubernetes_io_name
+        replacement: loki-distributed
+
+
 promtail:
   config:
     # similar to value from values.yaml, only that 'loki' is replaced by 'loki-distributed-gateway'
@@ -49,12 +63,3 @@ kube-prometheus-stack:
       isDefault: false
       type: loki
       url: "http://{{ .Release.Name }}-loki-distributed-gateway"
-    - name: cluster-alerts
-      isDefault: false
-      type: camptocamp-prometheus-alertmanager-datasource
-      url: "http://kube-prometheus-alertmanager:9093"
-      jsonData:
-        severity_critical: critical
-        severity_high: high
-        severity_warning: warning
-        severity_info: info
