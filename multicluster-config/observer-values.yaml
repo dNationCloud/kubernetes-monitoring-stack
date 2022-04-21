@@ -1,9 +1,52 @@
+#
+# Copyright 2020 The dNation Kubernetes Monitoring Stack Authors. All Rights Reserved.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+# Values for dNation Kubernetes Monitoring Stack to be used in addition
+# to default values.yaml for deploying thanos components for multicluster
+# monitorig at observer
+# Declare variables to be passed into helm chart dependencies.
+
 thanosStorage:
   secret:
     name: thanos-objstore-config
     key: objstore.yml
   # More details about supported storage types and config options can be found here: https://thanos.io/tip/thanos/storage.md/
   config: ""
+
+thanosQueryEnvoySidecar:
+  enabled: true
+  # define whole envoy-config as string
+  #  envoyConfigOverride: ""
+  #  envoyConfig:
+  service:
+    name: thanos-query-envoy
+    labels:
+      name: thanos-query-envoy
+    selector:
+      app.kubernetes.io/component: query
+      app.kubernetes.io/name: thanos
+  config: []
+
+## Configure additional grafana datasources
+grafanaDatasourcesAsConfigMap:
+  cluster-metrics:
+    - name: thanos
+      isDefault: true
+      type: prometheus
+      access: proxy
+      url: "http://thanos-query-frontend:9090"
 
 thanos:
   enabled: true
@@ -13,12 +56,42 @@ thanos:
   query:
     replicaLabel:
       - prometheus_replica
-    # logLevel: debug
     dnsDiscovery:
       sidecarsService: kube-prometheus-thanos-discovery
       sidecarsNamespace: "{{ .Release.Namespace }}"
     # URLs of exposed Thanos query components on remote workload clusters
     stores: []
+
+    # Envoy sidecar for communication with workload clusters
+    sidecars:
+    - name: envoy-sidecar
+      image: 'envoyproxy/envoy:v1.20.1'
+      imagePullPolicy: IfNotPresent
+      args:
+        - '-c'
+        - /config/envoy.yaml
+      volumeMounts:
+        - name: envoy-config
+          mountPath: /config
+          mountPropagation: None
+        - name: envoy-certs
+          mountPath: /certs
+          mountPropagation: None
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+
+    extraVolumes:
+      - name: envoy-config
+        configMap:
+          name: thanos-query-envoy-config
+          defaultMode: 420
+          optional: false
+      - name: envoy-certs
+        secret:
+          secretName: thanos-query-envoy-certs
+          defaultMode: 420
+          optional: false
+
   bucketweb:
     enabled: true
   compactor:
@@ -27,28 +100,16 @@ thanos:
     enabled: true
   ruler:
     enabled: false
-    # logLevel: debug
-#    replicaLabel: ruler_replica
-#    clusterName: observer
-#    alertmanagers:
-#      - http://dns+alertmanager-operated:9093
-#    # TODO: Investigate how to properly configure rules for thanos ruler at scale
-#    config: |-
-#      groups:
-#        - name: "metamonitoring"
-#          rules:
-#            - alert: "PrometheusDown"
-#              expr: absent(up{cluster="observer-cluster", prometheus="monitoring/kube-prometheus-stack-prometheus"})
 
 kube-prometheus-stack:
   enabled: true
-  # disable because workloads prometheuses are not conencted to alertmanagers
-  defaultRules:
-    disabled:
-      PrometheusNotConnectedToAlertmanagers: true
+#  # disable because workloads prometheuses are not conencted to alertmanagers
+#  defaultRules:
+#    disabled:
+#      PrometheusNotConnectedToAlertmanagers: true
   alertmanager:
     alertmanagerSpec:
-      replicas: 3
+      replicas: 2
     servicePerReplica:
       enabled: true
   grafana:
@@ -64,26 +125,6 @@ kube-prometheus-stack:
             enabled: true
           etcd:
             enabled: true
-    additionalDataSources:
-      - name: cluster-metrics
-        isDefault: false
-        type: prometheus
-        url: "http://kube-prometheus-prometheus:9090"
-        jsonData:
-          httpMethod: POST
-#      - name: cluster-logs
-#        isDefault: false
-#        type: loki
-#        url: "{{ .Release.Name }}-loki:3100"
-      - name: cluster-logs
-        isDefault: false
-        type: loki
-        url: "http://{{ .Release.Name }}-loki-gateway"
-      - name: thanos
-        isDefault: true
-        type: prometheus
-        access: proxy
-        url: "http://thanos-query-frontend:9090"
   prometheus:
     prometheusSpec:
       # !IMPORTANT: each cluster must have prometheus external label 'cluster' with unique value.
@@ -91,17 +132,9 @@ kube-prometheus-stack:
       externalLabels: 
         cluster: "observer-cluster"
       replicas: 2
-#      # TODO: Investigate better way how to disable connection from prometheus to alertmanager. For cleaner design, alerting should be done only by ruler for all clusters.
-#      alertingEndpoints:
-#        - namespace: ""
-#          name: ""
-#          port: ""
-#          pathPrefix: ""
-#          apiVersion: ""
       thanos:
         objectStorageConfig: 
           name: thanos-objstore-config
           key: objstore.yml
-        logLevel: debug
     thanosService: 
       enabled: true
