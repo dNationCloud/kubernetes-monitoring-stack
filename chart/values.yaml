@@ -28,10 +28,41 @@ namespaceOverride: ""
 ##
 fullnameOverride: ""
 
+# TODO: does it need to be here?
+## Configure storage for thanos components or thanos-sidecar in prometheus
+## More details about supported storage types and config options can be found here: https://thanos.io/tip/thanos/storage.md/
+##
+#thanosStorage:
+#  config: |-
+#    type: S3
+#    config: |-
+#      type: S3
+#      config:
+#        endpoint: "<url-of-the-S3-endpoint>"
+#        bucket: "<observer-bucket-name>"
+#        access_key: "<access-key>"
+#        secret_key: "<secret-key>"
+
 ## Thanos is currently used only for multicluster setup
 thanos:
   enabled: false
   fullnameOverride: "thanos"
+
+## Configure additional grafana datasources that will be provisioned as ConfigMaps
+## ref: http://docs.grafana.org/administration/provisioning/#datasources
+grafanaDatasourcesAsConfigMap:
+  cluster-metrics:
+    - name: cluster-metrics
+      isDefault: false
+      type: prometheus
+      url: "http://kube-prometheus-prometheus:9090"
+      jsonData:
+        httpMethod: POST
+  cluster-logs:
+    - name: cluster-logs
+      isDefault: false
+      type: loki
+      url: "http://{{ .Release.Name }}-loki:3100"
 
 ## Deploy a dnation-kubernetes-monitoring
 ## ref: https://github.com/dNationCloud/kubernetes-monitoring
@@ -132,6 +163,17 @@ kube-prometheus-stack:
       ruleSelector:
         matchLabels:
           prometheus_rule: '1'
+
+      ## Enable thanos sidecar
+      ## https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#thanosspec
+      ##
+      thanos:
+       logLevel: info
+#       objectStorageConfig:
+#         name: thanos-objstore-config
+#         key: objstore.yml
+    thanosService:
+      enabled: true
 
   ## Component scraping scheduler
   ## ref: https://dnationcloud.github.io/kubernetes-monitoring/helpers/FAQ/#kubernetes-monitoring-shows-down-state-for-some-control-plane-components-are-control-plane-components-working-correctly
@@ -237,20 +279,6 @@ kube-prometheus-stack:
         label: grafana_datasource
         defaultDatasourceEnabled: false
 
-    ## Configure additional grafana datasources
-    ## ref: http://docs.grafana.org/administration/provisioning/#datasources
-    ##
-    additionalDataSources:
-    - name: cluster-metrics
-      isDefault: false
-      type: prometheus
-      url: "http://kube-prometheus-prometheus:9090"
-      jsonData:
-        httpMethod: POST
-    - name: cluster-logs
-      isDefault: false
-      type: loki
-      url: "http://{{ .Release.Name }}-loki:3100"
     plugins:
     - camptocamp-prometheus-alertmanager-datasource 1.0.0
     - grafana-polystat-panel 1.2.11

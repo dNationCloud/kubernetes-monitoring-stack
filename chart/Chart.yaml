@@ -37,7 +37,7 @@ dependencies:
 - name: thanos
   version: "8.3.*"
   repository: https://charts.bitnami.com/bitnami
-  condition: thanos.enable
+  condition: thanos.enabled
 - name: loki
   version: "2.9.*"
   repository: https://grafana.github.io/helm-charts
@@ -51,7 +51,7 @@ dependencies:
   repository: https://grafana.github.io/helm-charts
   condition: promtail.enabled
 - name: dnation-kubernetes-monitoring
-  version: "1.4.*"
+  version: "2.0.*"
   repository: https://dnationcloud.github.io/helm-hub
   condition: dnation-kubernetes-monitoring.enabled
 

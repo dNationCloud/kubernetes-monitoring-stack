@@ -18,11 +18,20 @@
 # with loki-distributed.
 # Declare variables to be passed into helm chart dependencies.
 
+## Configure additional grafana datasources
+grafanaDatasourcesAsConfigMap:
+  cluster-logs:
+    - name: cluster-logs
+      isDefault: false
+      type: loki
+      url: "http://{{ .Release.Name }}-loki-gateway"
+
 loki:
   enabled: false
 
 loki-distributed:
   enabled: true
+  nameOverride: loki
 
   # enable servicemonitors for prometheus scraping
   serviceMonitor:
@@ -35,13 +44,7 @@ loki-distributed:
       - targetLabel: job
         sourceLabels:
           - __meta_kubernetes_service_label_app_kubernetes_io_name
-        replacement: loki-distributed
-
-
-promtail:
-  config:
-    # similar to value from values.yaml, only that 'loki' is replaced by 'loki-distributed-gateway'
-    lokiAddress: "http://{{ .Release.Name }}-loki-distributed-gateway/loki/api/v1/push"
+        replacement: loki
 
 kube-prometheus-stack:
   prometheus:
@@ -49,17 +52,3 @@ kube-prometheus-stack:
       # loki-distributed doesn't have proper labels so it doesn't match default prometheus serviceMonitorSelector
       # https://stackoverflow.com/questions/69466567/why-is-it-that-my-prometheus-operator-servicemonitor-needs-a-release-label-to
       serviceMonitorSelectorNilUsesHelmValues: false
-
-  grafana:
-    additionalDataSources:
-    # list of datasources from values.yaml, only that 'loki:3100' is replaced by 'loki-distributed-gateway'
-    - name: cluster-metrics
-      isDefault: false
-      type: prometheus
-      url: "http://kube-prometheus-prometheus:9090"
-      jsonData:
-        httpMethod: POST
-    - name: cluster-logs
-      isDefault: false
-      type: loki
-      url: "http://{{ .Release.Name }}-loki-distributed-gateway"
