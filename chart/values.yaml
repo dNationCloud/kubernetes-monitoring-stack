@@ -276,6 +276,17 @@ kube-prometheus-stack:
           severity: 'warning'
         equal: ['alertname']
 
+extraServices: []
+  # - name: addservice
+  #   namespace: targetnamespace
+  #   ports:
+  #   - name: portname
+  #     port: portnumber
+  #     targetPort: portnumber
+  #   selector:
+  #     app: app
+  #   type: ClusterIP
+
 extraSecrets: []
   # - name: addsecret
   #   data:
