@@ -257,7 +257,7 @@ kube-prometheus-stack:
         severity_info: info
     plugins:
     - camptocamp-prometheus-alertmanager-datasource 1.0.0
-    - grafana-polystat-panel
+    - grafana-polystat-panel 1.2.11
 
   ## Deploy an Alertmanager instance
   ##
