@@ -13,15 +13,21 @@
 # limitations under the License.
 #
 
-{{- if and .Values.thanos.enabled .Values.thanosStorage }}
+{{- if and .Values.thanos.enabled .Values.thanosQueryEnvoySidecar.enabled }}
 apiVersion: v1
-kind: Secret
+kind: ConfigMap
 metadata:
-  name: {{ .Values.thanosStorage.secret.name }}
-  namespace: {{ include "k8s-monitoring-stack.namespace" $ }}
-  labels:
-    app: {{ include "k8s-monitoring-stack.name" $ }}
-type: Opaque
+  name: thanos-query-envoy-config
 data:
-  {{ tpl .Values.thanosStorage.secret.key $ }}: {{ tpl .Values.thanosStorage.config $ | b64enc | quote }}
+  envoy.yaml: |
+    admin:
+      access_log_path: /tmp/admin_access.log
+      address:
+        socket_address: { address: 0.0.0.0, port_value: 9901 }
+  
+    static_resources:
+      listeners:
+      {{- include "envoy.listeners" .Values.thanosQueryEnvoySidecar.config | nindent 6 }} 
+      clusters:
+      {{- include "envoy.clusters" .Values.thanosQueryEnvoySidecar.config | nindent 6 }}
 {{- end }}

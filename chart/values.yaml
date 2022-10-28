@@ -28,36 +28,35 @@ namespaceOverride: ""
 ##
 fullnameOverride: ""
 
-# TODO: does it need to be here?
-## Configure storage for thanos components or thanos-sidecar in prometheus
-## More details about supported storage types and config options can be found here: https://thanos.io/tip/thanos/storage.md/
-##
-#thanosStorage:
-#  config: |-
-#    type: S3
-#    config: |-
-#      type: S3
-#      config:
-#        endpoint: "<url-of-the-S3-endpoint>"
-#        bucket: "<observer-bucket-name>"
-#        access_key: "<access-key>"
-#        secret_key: "<secret-key>"
-
-## Thanos is currently used only for multicluster setup
 thanos:
+  enabled: true
+  queryFrontend:
+    enabled: false
+  query:
+    dnsDiscovery:
+      sidecarsService: kube-prometheus-thanos-discovery
+      sidecarsNamespace: "{{ .Release.Namespace }}"
+  bucketweb:
+    enabled: false
+  compactor:
+    enabled: false
+  storegateway:
+    enabled: false
+  ruler:
+    enabled: false
+
+thanosQueryEnvoySidecar:
   enabled: false
-  fullnameOverride: "thanos"
 
 ## Configure additional grafana datasources that will be provisioned as ConfigMaps
 ## ref: http://docs.grafana.org/administration/provisioning/#datasources
 grafanaDatasourcesAsConfigMap:
   cluster-metrics:
-    - name: cluster-metrics
-      isDefault: false
+    - name: thanos
+      isDefault: true
       type: prometheus
-      url: "http://kube-prometheus-prometheus:9090"
-      jsonData:
-        httpMethod: POST
+      access: proxy
+      url: "http://{{ .Release.Name }}-thanos-query:9090"
   cluster-logs:
     - name: cluster-logs
       isDefault: false
@@ -123,6 +122,10 @@ promtail:
   enabled: true
   config:
     lokiAddress: "http://{{ .Release.Name }}-loki:3100/loki/api/v1/push"
+  # !IMPORTANT: each cluster must have prometheus external label 'cluster' with unique value.
+  # This will be used as cluster discriminator when metrics are aggregated on observer cluster.
+  extraArgs:
+    - -client.external-labels=cluster=observer-cluster
 
 ## Deploy a kube-prometheus-stack
 ## ref: https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack
@@ -168,10 +171,7 @@ kube-prometheus-stack:
       ## https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#thanosspec
       ##
       thanos:
-       logLevel: info
-#       objectStorageConfig:
-#         name: thanos-objstore-config
-#         key: objstore.yml
+        logLevel: info
     thanosService:
       enabled: true
 

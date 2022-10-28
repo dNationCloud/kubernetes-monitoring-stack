@@ -46,8 +46,7 @@ grafanaDatasourcesAsConfigMap:
       isDefault: true
       type: prometheus
       access: proxy
-      url: "http://thanos-query-frontend:9090"
-
+      url: "http://{{ .Release.Name }}-thanos-query-frontend:9090"
 thanos:
   enabled: true
   existingObjstoreSecret: thanos-objstore-config
@@ -70,6 +69,11 @@ thanos:
       args:
         - '-c'
         - /config/envoy.yaml
+      ports:
+        - name: egress-http-1
+          containerPort: 10001
+          protocol: TCP
+      resources: {}
       volumeMounts:
         - name: envoy-config
           mountPath: /config
@@ -103,10 +107,6 @@ thanos:
 
 kube-prometheus-stack:
   enabled: true
-#  # disable because workloads prometheuses are not conencted to alertmanagers
-#  defaultRules:
-#    disabled:
-#      PrometheusNotConnectedToAlertmanagers: true
   alertmanager:
     alertmanagerSpec:
       replicas: 2
@@ -129,7 +129,7 @@ kube-prometheus-stack:
     prometheusSpec:
       # !IMPORTANT: each cluster must have prometheus external label 'cluster' with unique value.
       # This will be used as cluster discriminator when metrics are aggregated on observer cluster.
-      externalLabels: 
+      externalLabels:
         cluster: "observer-cluster"
       replicas: 2
       thanos:

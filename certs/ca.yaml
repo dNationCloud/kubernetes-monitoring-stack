@@ -13,15 +13,23 @@
 # limitations under the License.
 #
 
-{{- if and .Values.thanos.enabled .Values.thanosStorage }}
-apiVersion: v1
-kind: Secret
+apiVersion: cert-manager.io/v1
+kind: Certificate
 metadata:
-  name: {{ .Values.thanosStorage.secret.name }}
-  namespace: {{ include "k8s-monitoring-stack.namespace" $ }}
-  labels:
-    app: {{ include "k8s-monitoring-stack.name" $ }}
-type: Opaque
-data:
-  {{ tpl .Values.thanosStorage.secret.key $ }}: {{ tpl .Values.thanosStorage.config $ | b64enc | quote }}
-{{- end }}
+ name: ca
+ namespace: monitoring
+spec:
+ duration: 8760h # 1y
+ # name of the tls secret to store
+ # the generated certificate/key pair
+ secretName: <tls-ca-key-pair>
+ isCA: true
+ issuerRef:
+   # issuer created in step 1
+   name: issuer-ss
+   kind: Issuer
+ commonName: <common-name>
+# dnsNames:
+# # one or more fully-qualified domain name
+# # can be defined here
+# - foo1.bar1
