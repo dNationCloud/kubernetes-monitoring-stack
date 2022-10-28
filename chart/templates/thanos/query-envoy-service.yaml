@@ -13,15 +13,26 @@
 # limitations under the License.
 #
 
-{{- if and .Values.thanos.enabled .Values.thanosStorage }}
+{{- if and .Values.thanos.enabled .Values.thanosQueryEnvoySidecar.enabled }}
+kind: Service
 apiVersion: v1
-kind: Secret
 metadata:
-  name: {{ .Values.thanosStorage.secret.name }}
-  namespace: {{ include "k8s-monitoring-stack.namespace" $ }}
+  name: {{ .Values.thanosQueryEnvoySidecar.service.name }}
+  {{- with .Values.thanosQueryEnvoySidecar.service.labels }}
   labels:
-    app: {{ include "k8s-monitoring-stack.name" $ }}
-type: Opaque
-data:
-  {{ tpl .Values.thanosStorage.secret.key $ }}: {{ tpl .Values.thanosStorage.config $ | b64enc | quote }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  ports:
+  {{- range .Values.thanosQueryEnvoySidecar.config }}
+    - name: http-{{ .name }}
+      protocol: TCP
+      port: {{ .listenPort }}
+      targetPort: {{ .listenPort }}
+  {{- end }}
+  {{- with .Values.thanosQueryEnvoySidecar.service.selector }}
+  selector:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  type: ClusterIP
 {{- end }}

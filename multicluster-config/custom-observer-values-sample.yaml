@@ -3,48 +3,27 @@
 
 thanosStorage:
   # More details about supported storage types and config options can be found here: https://thanos.io/tip/thanos/storage.md/
-#  config: |-
-#    type: S3
-#    config:
-#      endpoint: "<url-of-the-S3-endpoint>"
-#      bucket: "<observer-bucket-name>"
-#      access_key: "<access-key>"
-#      secret_key: "<secret-key>"
-#      insecure: false
-#      signature_version2: false
-#      part_size: 0
-
   config: |-
-    type: S3
-    config:
-      endpoint: api-thanos-minio.k8s-h-dev.dnation.cloud
-      bucket: observer-cluster
-      access_key: thanosTenant
-      secret_key: Q7zfIfKI0x0VMD
-      insecure: false
-      signature_version2: true
-      part_size: 0
+   type: S3
+   config:
+     endpoint: "<url-of-the-S3-endpoint>"
+     bucket: "<observer-bucket-name>"
+     access_key: "<access-key>"
+     secret_key: "<secret-key>"
+     insecure: false
+     signature_version2: false
+     part_size: 0
 
 thanosQueryEnvoySidecar:
-#  config:
-#    - name: "workload-cluster-1"
-#      listenPort: 10000
-#      queryUrl: <url of exposed query component on remote workload cluster>
-#      queryPort: <port of exposed query component on remote workload cluster>
-#      tls:
-#        certificate_chain: /certs/tls.crt
-#        private_key: /certs/tls.key
-#        trusted_ca: /certs/ca.crt
-
   config:
-  - name: "workload-cluster-1"
-    listenPort: 10001
-    queryUrl: query-workload.dnation.cloud
-    queryPort: 32443
-    tls:
-      certificate_chain: /certs/tls.crt
-      private_key: /certs/tls.key
-      trusted_ca: /certs/ca.crt
+   - name: "cluster-1"
+     listenPort: 10001
+     queryUrl: <url of exposed query component on remote workload cluster>
+     queryPort: <port of exposed query component on remote workload cluster>
+     tls:
+       certificate_chain: /certs/tls.crt
+       private_key: /certs/tls.key
+       trusted_ca: /certs/ca.crt
 
 promtail:
   config:
@@ -54,12 +33,14 @@ promtail:
     lokiAddress: "http://{{ .Release.Name }}-loki-gateway/loki/api/v1/push"
 
 thanos:
+  global:
+    storageClass: <storage-class>
   query:
     # URLs of exposed Thanos query components on remote workload clusters
     # For workload cluster defined in thanosQueryEnvoySidecar format is
-    # dnssrv+_http-<cluster name>._tcp.<name of query envoy service>.<namespace>.svc.cluster.
+    # dnssrv+_http-<cluster name>._tcp.<name of query envoy service>.<namespace>.svc.cluster.local
     stores:
-      - dnssrv+_http-workload-cluster-1._tcp.thanos-query-envoy.default.svc.cluster.
+      - dnssrv+_http-cluster-1._tcp.thanos-query-envoy.monitoring.svc.cluster.local
 
 kube-prometheus-stack:
   prometheus: 
@@ -70,5 +51,8 @@ kube-prometheus-stack:
     ingress:
       enabled: true
       hosts:
-        - test.grafana.dnation
-        #- <grafana-endpoint>
+        - <grafana-endpoint>
+      tls:
+      - secretName: <grafana-secret-name>
+        hosts:
+        - <grafana-endpoint>

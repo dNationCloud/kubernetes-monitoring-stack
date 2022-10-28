@@ -9,11 +9,6 @@ thanosStorage:
 loki:
   enabled: false
 
-promtail:
-  config:
-    # similar to value from values.yaml, only that 'loki' is replaced by 'loki-distributed-gateway'
-    lokiAddress: "http://{{ .Release.Name }}-loki-distributed-gateway/loki/api/v1/push"
-
 thanos:
   enabled: true
   existingObjstoreSecret: thanos-objstore-config
@@ -23,11 +18,6 @@ thanos:
     dnsDiscovery:
       sidecarsService: kube-prometheus-thanos-discovery
       sidecarsNamespace: "{{ .Release.Namespace }}"
-    # TODO: properly secure communication between workload and observer cluster queriers
-#    service:
-#      type: NodePort
-#      nodePorts:
-#        grpc: 30901
   bucketweb:
     enabled: true
   compactor:

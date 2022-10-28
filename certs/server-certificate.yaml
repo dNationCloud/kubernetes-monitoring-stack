@@ -13,15 +13,19 @@
 # limitations under the License.
 #
 
-{{- if and .Values.thanos.enabled .Values.thanosStorage }}
-apiVersion: v1
-kind: Secret
+apiVersion: cert-manager.io/v1
+kind: Certificate
 metadata:
-  name: {{ .Values.thanosStorage.secret.name }}
-  namespace: {{ include "k8s-monitoring-stack.namespace" $ }}
-  labels:
-    app: {{ include "k8s-monitoring-stack.name" $ }}
-type: Opaque
-data:
-  {{ tpl .Values.thanosStorage.secret.key $ }}: {{ tpl .Values.thanosStorage.config $ | b64enc | quote }}
-{{- end }}
+  name: server
+  namespace: monitoring
+spec:
+  commonName: <common-name>
+  dnsNames:
+  - <fully-qualified-dns-domain>
+  issuerRef:
+    kind: Issuer
+    name: issuer-ca
+  secretName: <server-secret-name> # secret, which will be created
+  duration: 8760h # 1y
+  usages:
+    - server auth

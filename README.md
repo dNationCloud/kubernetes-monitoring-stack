@@ -22,7 +22,7 @@ Prerequisites
 * For production environment we recommend (based on our experience) a kubernetes cluster with at least 2 worker nodes and 4 GiB RAM per node or more.
 
 
-dNation Kubernetes Monitoring Stack umbrella chart is hosted in the [dNation helm repository](https://artifacthub.io/packages/search?repo=dnationcloud).
+dNation Kubernetes Monitoring Stack umbrella chart is hosted in the [dNation helm repository](https://artifacthub.io/packages/search?repo=dnationcloud). By default, dNation Kubernetes Monitoring Stack installs Prometheus with Thanos sidecar and Thanos Query. For more details check [Multicluster monitoring support](#multicluster-monitoring-support) section.
 ```bash
 # Add dNation helm repository
 helm repo add dnationcloud https://dnationcloud.github.io/helm-hub/
@@ -55,19 +55,15 @@ If you're experiencing issues please read the [documentation](https://dnationclo
 |Kubernetes v1.21||✓|✓|
 |Kubernetes v1.22||✓|✓|
 
-# [DRAFT] Multicluster monitoring support
-This chart supports also setup of multicluster monitoring using Thanos. The deployment architecture follows "observer cluster/workload clusters" pattern, where there is one observer k8s cluster which provides centralized monitoring overview of multiple workload k8s clusters. Helm values files enabling the multicluster monitoring are located inside `multicluster-config/` directory. There are 4 files in total:
-- `multicluster-config/observer-values.yaml` - contains config for production installation of obsrver cluster 
-- `multicluster-config/workload-values.yaml` - contains config for production installation of workload cluster(s)
-- `multicluster-config/observer-dev-values.yaml` - contains config for installation of obsrver cluster in development mode
-- `multicluster-config/workload-dev-values.yaml` - contains config for installation of workload cluster(s) in development mode
+# Multicluster monitoring support
+This chart supports also setup of multicluster monitoring using Thanos. The deployment architecture follows "observer cluster/workload clusters" pattern, where there is one observer k8s cluster which provides centralized monitoring overview of multiple workload k8s clusters. Helm values files enabling the multicluster monitoring are located inside `multicluster-config/` directory. There are 2 files in total:
 
-The main difference between production and development mode is, that development mode doesn't have persistent object storage dependency enabled. This makes it easier and faster to setup development mode, using kind or minikube.
+- `multicluster-config/observer-values.yaml` - contains config for installation of observer cluster
+- `multicluster-config/workload-values.yaml` - contains config for installation of workload cluster(s)
 
 ## Architecture
 
-As mentioned earlier, we are using "observer cluster/workload clusters" pattern to implement 
-multicluster monitoring. The full architecture can be seen on following diagram:
+As mentioned earlier, we are using "observer cluster/workload clusters" pattern to implement multicluster monitoring. The full architecture can be seen on following diagram:
 
 ![](thanos-deployment-architecture.svg)
 
@@ -75,17 +71,21 @@ multicluster monitoring. The full architecture can be seen on following diagram:
 
 ### Observer cluster
 
+Prerequisites
+* [Cert-manager](https://cert-manager.io/)
+
+
 ```shell
 helm --kube-context <observer-kubeconfig-context> \
-install --atomic --timeout 5m \
+install --timeout 5m \
 --namespace monitoring --create-namespace \
 dnation-kubernetes-monitoring-stack \
 dnationcloud/dnation-kubernetes-monitoring-stack \
 -f multicluster-config/observer-values.yaml \
--f <custom-observer-values.yaml>
+-f <custom-observer-values-sample.yaml>
 ```
 
-`custom-observer-values.yaml` file contains custom, user managed config values for observer cluster. Example of the file:
+`custom-observer-values-sample.yaml` file contains custom, user managed config values for observer cluster. Example of the file:
 
 ```yaml
 thanosStorage:
@@ -96,6 +96,17 @@ thanosStorage:
       bucket: "<observer-bucket-name>"
       access_key: "<access-key>"
       secret_key: "<secret-key>"
+
+thanosQueryEnvoySidecar:
+  config:
+   - name: <envoy-name>
+     listenPort: 10001
+     queryUrl: <url of exposed query component on remote workload cluster>
+     queryPort: <port of exposed query component on remote workload cluster>
+     tls:
+       certificate_chain: /certs/tls.crt
+       private_key: /certs/tls.key
+       trusted_ca: /certs/ca.crt
 
 kube-prometheus-stack:
   prometheus: 
@@ -111,23 +122,32 @@ thanos.query.stores: []
 ```
 
 - `thanosStorage.config` field contains configuration of object storage used by thanos components in the observer cluster. More info can be found here: https://thanos.io/tip/thanos/storage.md/
+- `thanosQueryEnvoySidecar.config` field that contains configuration of the thanos query envoy sidecar in the observer cluster.
 - `kube-prometheus-stack.prometheus.prometheusSpec.externalLabels.cluster` field contains prometheus external label uniquely identifying observer cluster metrics.
 - `kube-prometheus-stack.grafana.ingress.hosts` field contains list of hostnames on which the  observer grafana will be available
 - `thanos.query.stores` field contains list of endpoints representing workload clusters. Everytime new workload cluster is introduced, its needs to be added to this list, so observer cluster knows about it.
+
+You must also generate CA and this will be trusted by the workload clusters ingress, here is how:
+
+1. Create self-signed Issuer in order to create a root CA certificate(`certs/issuer-ss.yaml`)
+2. Generate a CA Certificate used to sign certificate(`certs/ca.yaml`)
+3. Create an Issuer that uses the above generated CA certificate to issue certs(`certs/issuer-ca.yaml`)
+4. Finally, generate a serving certificate for server and client(`certs/server-certificate.yaml`, `certs/client-certificate.yaml`)
+5. Create secret for envoy (`certs/client-secret.yaml`)
 
 ### Workload cluster
 
 ```shell
 helm --kube-context <workload-N-kubeconfig-context> \
-install --atomic --timeout 10m \
+install --timeout 5m \
 --namespace monitoring --create-namespace \
 dnation-kubernetes-monitoring-stack \
 dnationcloud/dnation-kubernetes-monitoring-stack \
 -f multicluster-config/workload-values.yaml \
--f <custom-workload-values.yaml>
+-f <custom-workload-values-sample.yaml>
 ```
 
-`custom-workload-values.yaml` file contains custom, user managed config values for workload cluster. Each workload cluster should have its own file. Example of the file:
+`custom-workload-values-sample.yaml` file contains custom, user managed config values for workload cluster. Each workload cluster should have its own file. Example of the file:
 
 ```yaml
 thanosStorage:
@@ -149,8 +169,8 @@ kube-prometheus-stack:
 - `thanosStorage.config` field contains configuration of object storage used by thanos components in the workload cluster. Each workload cluster should have its own, dedicated object storage bucket. More info can be found here: https://thanos.io/tip/thanos/storage.md/
 - `kube-prometheus-stack.prometheus.prometheusSpec.externalLabels.cluster` field contains prometheus external label uniquely identifying workload cluster metrics. Each workload cluster should have unique prometheus external label.
 
-As a last step you have to add exposed thanos-query endpoint of workload cluster into `thanos.query.stores` list in your `custom-observer-values.yaml` file, so your observer cluster knows about newly created workload cluster. 
-The thanos-query component is exposed as a nodePort Service, and it should be accessible on every node of the workload cluster on port `30901` . After that, your `custom-observer-values.yaml` file should look like this:
+As a last step you have to add exposed thanos-query endpoint of workload cluster into `thanos.query.stores` list in your `custom-observer-values-sample.yaml` file, so your observer cluster knows about newly created workload cluster.
+Point thanos query component to the envoy listener port, so thanos query component will then query your workload cluster and aggregate the query results. After that, your `custom-observer-values-sample.yaml` file should look like this:
 
 ```yaml
 thanosStorage:
@@ -173,19 +193,24 @@ kube-prometheus-stack:
         - <grafana-endpoint>
 
 thanos.query.stores:
-   - <host-or-ip-of-newly-added-workload-cluster>:30901
+   - dnssrv+_http-[envoy-name]._tcp.thanos-query-envoy.[namespace].svc.cluster.local
 ```
 
-Ateter you added new workload cluster endpoint into `custom-observer-values.yaml` file, update the configuration of your observer cluster:
+Thanos sidecar in workload clusters is published with an Ingress object with TLS client auth. To trust the observer cluster CA you need to create following two secerets:
+
+1. Create thanos-ca-secret, where `ca.crt` in data field is coppied from server-secret created by `certs/server-certificate.yaml` on observer cluster
+2. Create `certs/server-secret.yaml`, where fields `ca.crt`, `tls.crt`, `tls.key` are copied from server-secret created by `certs/server-certificate.yaml` on observer cluster
+
+After you added new workload cluster endpoint into `custom-observer-values-sample.yaml` file, update the configuration of your observer cluster:
 
 ```shell
 helm --kube-context <observer-kubeconfig-context> \
-upgrade --atomic --timeout 5m --install \
+upgrade --timeout 5m --install \
 --namespace monitoring --create-namespace \
 dnation-kubernetes-monitoring-stack \
 dnationcloud/dnation-kubernetes-monitoring-stack \
 -f multicluster-config/observer-values.yaml \
--f <custom-observer-values.yaml>
+-f <custom-observer-values-sample.yaml>
 ```
 
 # Contribution guidelines

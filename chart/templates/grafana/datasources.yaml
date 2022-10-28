@@ -13,15 +13,18 @@
 # limitations under the License.
 #
 
-{{- if and .Values.thanos.enabled .Values.thanosStorage }}
 apiVersion: v1
-kind: Secret
+kind: ConfigMap
 metadata:
-  name: {{ .Values.thanosStorage.secret.name }}
+  name: {{ include "k8s-monitoring-stack.name" $ }}-grafana-datasources
   namespace: {{ include "k8s-monitoring-stack.namespace" $ }}
   labels:
     app: {{ include "k8s-monitoring-stack.name" $ }}
-type: Opaque
+    grafana_datasource: "1"
 data:
-  {{ tpl .Values.thanosStorage.secret.key $ }}: {{ tpl .Values.thanosStorage.config $ | b64enc | quote }}
-{{- end }}
+  datasource.yaml: |-
+    apiVersion: 1
+    datasources:
+    {{- range $_, $datasource := .Values.grafanaDatasourcesAsConfigMap -}}
+      {{- tpl (toYaml $datasource) $ | nindent 4 -}}
+    {{- end -}}
