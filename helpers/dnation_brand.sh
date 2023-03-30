@@ -2,7 +2,7 @@
 # Modify favicon
 sed -i 's/\[\[.AppTitle\]\]/dNation/g' /usr/share/grafana/public/views/index.html
 sed -i 's/\[\[.AppTitle\]\]/dNation/g' /usr/share/grafana/public/views/index-template.html
-sed -i 's/\[\[.FavIcon\]\]/https:\/\/storage.googleapis.com\/ifne.eu\/public\/icons\/dnation_k8sm8g.png/g' /usr/share/grafana/public/views/index.html
+sed -i 's/\[\[.FavIcon\]\]/https:\/\/storage.googleapis.com\/cdn.ifne.eu\/public\/icons\/dnation_k8sm8g.png/g' /usr/share/grafana/public/views/index.html
 #Modify logp
 sed -i 's@public/img/grafana_icon.svg@public/img/dnation_logo.svg@g' /usr/share/grafana/public/build/*.*
 #Modify app title
