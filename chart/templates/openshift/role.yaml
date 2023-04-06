@@ -1,0 +1,42 @@
+{{ if .Values.openshift.enabled }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  annotations:
+    "helm.sh/hook": pre-install, pre-upgrade, post-delete
+  name: {{ .Release.Name }}-openshift-role
+  namespace: {{ .Release.Namespace }}
+rules:
+  - apiGroups:
+      - security.openshift.io
+    resourceNames:
+    {{ if not .Values.openshift.existingSecurityContextConstraints}}
+      - {{ .Release.Namespace }}-{{ .Release.Name }}-scc
+    {{ else }}
+      - {{ .Values.openshift.existingSecurityContextConstraints }}
+    {{ end }}
+    resources:
+      - securitycontextconstraints
+    verbs:
+      - use
+  - apiGroups:
+      - '*'
+    resources:
+      - configmaps
+    verbs:
+      - list
+      - get
+      - watch
+      - create
+      - update
+      - patch
+      - delete
+  - apiGroups:
+      - "*"
+    resources:
+      - pods
+    verbs:
+      - list
+      - watch
+      - get
+{{ end }}

@@ -46,14 +46,14 @@ If you're experiencing issues please read the [documentation](https://dnationclo
 
 # Kubernetes support (tested)
 
-||dNation monitoring v1.3|dNation monitoring v1.4|dNation monitoring v2.0|
-|-|-|-|-|
-|Kubernetes v1.17|✓|||
-|Kubernetes v1.18|✓|||
-|Kubernetes v1.19|✓|||
-|Kubernetes v1.20|✓|||
-|Kubernetes v1.21||✓|✓|
-|Kubernetes v1.22||✓|✓|
+||dNation monitoring v1.3|dNation monitoring v1.4|dNation monitoring v2.0|dNation monitoring v2.3|
+|-|-|-|-|-|
+|Kubernetes v1.17|✓||||
+|Kubernetes v1.18|✓||||
+|Kubernetes v1.19|✓||||
+|Kubernetes v1.20|✓||||
+|Kubernetes v1.21||✓|✓||
+|Kubernetes v1.22||✓|✓|✓|
 
 # Multicluster monitoring support
 This chart supports also setup of multicluster monitoring using Thanos. The deployment architecture follows "observer cluster/workload clusters" pattern, where there is one observer k8s cluster which provides centralized monitoring overview of multiple workload k8s clusters. Helm values files enabling the multicluster monitoring are located inside `multicluster-config/` directory. There are 2 files in total:
@@ -109,9 +109,9 @@ thanosQueryEnvoySidecar:
        trusted_ca: /certs/ca.crt
 
 kube-prometheus-stack:
-  prometheus: 
+  prometheus:
     prometheusSpec:
-      externalLabels: 
+      externalLabels:
         cluster: "observer-cluster"
   grafana:
     ingress:
@@ -160,9 +160,9 @@ thanosStorage:
       secret_key: "<secret-key>"
 
 kube-prometheus-stack:
-  prometheus: 
+  prometheus:
     prometheusSpec:
-      externalLabels: 
+      externalLabels:
         cluster: "workload-cluster-N"
 ```
 
@@ -183,9 +183,9 @@ thanosStorage:
       secret_key: "<secret-key>"
 
 kube-prometheus-stack:
-  prometheus: 
+  prometheus:
     prometheusSpec:
-      externalLabels: 
+      externalLabels:
         cluster: "observer-cluster"
   grafana:
     ingress:
@@ -212,7 +212,77 @@ dnationcloud/dnation-kubernetes-monitoring-stack \
 -f multicluster-config/observer-values.yaml \
 -f <custom-observer-values-sample.yaml>
 ```
+# Openshift support
+## Tested versions
 
+||dNation monitoring v1.3|dNation monitoring v1.4|dNation monitoring v2.0|dNation monitoring v2.3|
+|-|-|-|-|-|
+|Openshift v4.7||||✓|
+## Installation
+To install the chart on an openshift cluster, use additional [values for openshift](/chart/values-openshift.yaml)
+```shell
+ helm upgrade --install -n dnation-monitoring dnation-monitoring dnationcloud/dnation-kubernetes-monitoring-stack -f chart/values-openshift.yaml
+```
+Multi cluster setup with openshift as a workload cluster
+```shell
+helm upgrade --install -n dnation-monitoring dnation-monitoring dnationcloud/dnation-kubernetes-monitoring-stack \
+-f chart/values-openshift.yaml \
+-f multicluster-config/workload-values-openshift.yaml \
+-f <custom-workload-values-sample.yaml>
+```
+Multi cluster setup with openshift as an observer cluster
+```shell
+helm upgrade --install -n dnation-monitoring dnation-monitoring dnationcloud/dnation-kubernetes-monitoring-stack \
+-f chart/values-openshift.yaml \
+-f multicluster-config/observer-values-openshift.yaml \
+-f <custom-observer-values-sample.yaml>
+```
+## Security context constraints (SCC)
+The chart creates its own [SCC](https://docs.openshift.com/container-platform/3.11/admin_guide/manage_scc.html). If you want to use an existing SCC from your cluster, set `openshift.existingSecurityContextConstraints: <scc-name>`.
+```yaml
+# Example values
+openshift:
+  enabled: true
+  # If null, create new scc
+  existingSecurityContextConstraints: <scc-name>
+```
+## Service Accounts
+It is required that all default service accounts are disabled. New service accounts must be then created and linked in values
+```yaml
+# Example setting for 'promtail' service account
+# Do this with all service accounts used by kubernetes-monitoring-stack
+promtail:
+    serviceAccount:
+    create: false
+    # Service account name must match service account created below
+    name: 'dnation-monitoring-promtail'
+# ...
+openshift:
+  serviceAccounts:
+    # ...
+    - dnation-monitoring-promtail
+    # ...
+```
+Service accounts are already configured in [values-openshift.yaml](/chart/values-openshift.yaml) for single cluster setup. For multicluster setup, `openshift.serviceAccounts` list is overriden in [workload-values-openshift.yaml](/multicluster-config/workload-values-openshift.yaml) resp.[workload-values-openshift.yaml](/multicluster-config/workload-values-openshift.yaml), so only relevant sevice accounts are created.
+## ETCD certificates
+In order to monitor ETCD, copy certificates from `openshift-config` namespace.
+```bash
+# Namespace to install k8s monitoring
+NS='dnation-monitoring'
+# Get ETCD certificate from 'openshift-config' namespace
+CA=$(kubectl get cm -n openshift-config etcd-metric-serving-ca -o jsonpath='{.data.ca-bundle\.crt}')
+CRT=$(kubectl get secret -n openshift-config etcd-metric-client -o jsonpath='{.data.tls\.crt}' | base64 -d)
+KEY=$(kubectl get secret -n openshift-config etcd-metric-client -o jsonpath='{.data.tls\.key}' | base64 -d)
+# Create etcd client secret
+kubectl create secret generic -n $NS  kube-etcd-client-certs --from-literal=etcd-client.key="$KEY" --from-literal=etcd-client.crt="$CRT" --from-literal=etcd-client-ca.crt="$CA"
+# Copy CA bundle configmap from openshift config namespace as is
+CM=$(kubectl get configmap  openshift-service-ca.crt --namespace=openshift-config -o jsonpath='{.data.service-ca\.crt}')
+kubectl create cm -n $NS  serving-certs-ca-bundle --from-literal=service-ca.crt="$CM"
+```
+This script is also in `helpers/openshift_etcd.sh`
+## Configuration
+
+Further configuration of openshift monitoring is possible, see [values-openshift.yaml](/chart/values-openshift.yaml).
 # Contribution guidelines
 If you want to contribute, please read following:
 1. [Contribution Guidelines](CONTRIBUTING.md)

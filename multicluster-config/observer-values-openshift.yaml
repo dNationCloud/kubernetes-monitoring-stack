@@ -52,6 +52,10 @@ thanos:
   existingObjstoreSecret: thanos-objstore-config
   queryFrontend:
     enabled: true
+    serviceAccount:
+      create: false
+      # Service account name must match service account created below
+      name: 'dnation-monitoring-thanos-query-frontend'
   query:
     replicaLabel:
       - prometheus_replica
@@ -98,10 +102,22 @@ thanos:
 
   bucketweb:
     enabled: true
+    serviceAccount:
+      create: false
+      # Service account name must match service account created below
+      name: 'dnation-monitoring-thanos-bucketweb'
   compactor:
     enabled: true
+    serviceAccount:
+      create: false
+      # Service account name must match service account created below
+      name: 'dnation-monitoring-thanos-compactor'
   storegateway:
     enabled: true
+    serviceAccount:
+      create: false
+      # Service account name must match service account created below
+      name: 'dnation-monitoring-thanos-storegateway'
   ruler:
     enabled: false
 
@@ -138,3 +154,20 @@ kube-prometheus-stack:
           key: objstore.yml
     thanosService:
       enabled: true
+
+openshift:
+  serviceAccounts:
+  - dnation-monitoring-alertmanager
+  - dnation-monitoring-kube-prometheus-operator
+  - dnation-monitoring-prometheus
+  - dnation-monitoring-kubernetes-jsonnet-translator
+  - dnation-monitoring-grafana
+  - dnation-monitoring-kube-state-metrics
+  - dnation-monitoring-loki
+  - dnation-monitoring-node-exporter
+  - dnation-monitoring-promtail
+  - dnation-monitoring-thanos-bucketweb
+  - dnation-monitoring-thanos-compactor
+  - dnation-monitoring-thanos-query
+  - dnation-monitoring-thanos-query-frontend
+  - dnation-monitoring-thanos-storegateway
