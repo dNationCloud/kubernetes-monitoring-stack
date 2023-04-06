@@ -1,0 +1,296 @@
+promtail:
+  containerSecurityContext:
+    privileged: true
+    allowPrivilegeEscalation: true
+  serviceAccount:
+    create: false
+    # Service account name must match service account created below
+    name: 'dnation-monitoring-promtail'
+
+dnation-kubernetes-monitoring:
+  dnation-kubernetes-jsonnet-translator:
+    create: false
+    # Service account name must match service account created below
+    name: 'dnation-monitoring-kubernetes-jsonnet-translator'
+
+loki:
+  serviceAccount:
+    create: false
+    # Service account name must match service account created below
+    name: 'dnation-monitoring-loki'
+
+thanos:
+  query:
+    serviceAccount:
+      create: false
+      # Service account name must match service account created below
+      name: 'dnation-monitoring-thanos-query'
+
+extraServices:
+- name: dnation-kube-etcd
+  namespace: openshift-etcd
+  extraLabels:
+    job: kube-etcd
+  ports:
+  - name: etcd-metrics
+    port: 9979
+    protocol: TCP
+    targetPort: 9979
+  selector:
+    etcd: "true"
+  type: ClusterIP
+- name: dnation-kube-scheduler
+  namespace: openshift-kube-scheduler
+  extraLabels:
+    job: kube-scheduler
+  ports:
+  - name: https
+    port: 443
+    protocol: TCP
+    targetPort: 10259
+  selector:
+    scheduler: "true"
+  type: ClusterIP
+- name: dnation-kube-controller-manager
+  namespace: openshift-kube-controller-manager
+  extraLabels:
+    job: kube-controller-manager
+  ports:
+  - name: https
+    port: 443
+    protocol: TCP
+    targetPort: 10257
+  selector:
+    kube-controller-manager: "true"
+  type: ClusterIP
+
+kube-prometheus-stack:
+  alertmanager:
+    serviceAccount:
+      create: false
+      # Service account name must match service account created below
+      name: 'dnation-monitoring-alertmanager'
+  grafana:
+    serviceAccount:
+      create: false
+      # Service account name must match service account created below
+      name: 'dnation-monitoring-grafana'
+  kube-state-metrics:
+    serviceAccount:
+      create: false
+      # Service account name must match service account created below
+      name: 'dnation-monitoring-kube-state-metrics'
+  prometheus:
+    serviceAccount:
+      create: false
+      # Service account name must match service account created below
+      name: 'dnation-monitoring-prometheus'
+    additionalServiceMonitors:
+    - name: openshift-etcd
+      endpoints:
+      - bearerTokenSecret:
+          key: ""
+        interval: 30s
+        port: etcd-metrics
+        scheme: https
+        tlsConfig:
+        # The certificates are obtained by copying from 'openshift-config' namespace
+          caFile: /etc/prometheus/secrets/kube-etcd-client-certs/etcd-client-ca.crt
+          certFile: /etc/prometheus/secrets/kube-etcd-client-certs/etcd-client.crt
+          keyFile: /etc/prometheus/secrets/kube-etcd-client-certs/etcd-client.key
+      jobLabel: job
+      namespaceSelector:
+        matchNames:
+        - openshift-etcd
+      selector:
+        matchLabels:
+          job: kube-etcd
+    - name: openshift-kubelet
+      endpoints:
+      - bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
+        honorLabels: true
+        port: https-metrics
+        relabelings:
+        - sourceLabels:
+          - __metrics_path__
+          targetLabel: metrics_path
+        scheme: https
+        tlsConfig:
+          caFile: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+          insecureSkipVerify: true
+      - bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
+        honorLabels: true
+        metricRelabelings:
+        - action: drop
+          regex: container_cpu_(cfs_throttled_seconds_total|load_average_10s|system_seconds_total|user_seconds_total)
+          sourceLabels:
+          - __name__
+        - action: drop
+          regex: container_fs_(io_current|io_time_seconds_total|io_time_weighted_seconds_total|reads_merged_total|sector_reads_total|sector_writes_total|writes_merged_total)
+          sourceLabels:
+          - __name__
+        - action: drop
+          regex: container_memory_(mapped_file|swap)
+          sourceLabels:
+          - __name__
+        - action: drop
+          regex: container_(file_descriptors|tasks_state|threads_max)
+          sourceLabels:
+          - __name__
+        - action: drop
+          regex: container_spec.*
+          sourceLabels:
+          - __name__
+        - action: drop
+          regex: .+;
+          sourceLabels:
+          - id
+          - pod
+        path: /metrics/cadvisor
+        port: https-metrics
+        relabelings:
+        - sourceLabels:
+          - __metrics_path__
+          targetLabel: metrics_path
+        scheme: https
+        tlsConfig:
+          caFile: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+          insecureSkipVerify: true
+      - bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
+        honorLabels: true
+        path: /metrics/probes
+        port: https-metrics
+        relabelings:
+        - sourceLabels:
+          - __metrics_path__
+          targetLabel: metrics_path
+        scheme: https
+        tlsConfig:
+          caFile: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+          insecureSkipVerify: true
+      jobLabel: k8s-app
+      namespaceSelector:
+        matchNames:
+        - kube-system
+      selector:
+        matchLabels:
+          k8s-app: kubelet
+    - name: openshift-kube-scheduler
+      endpoints:
+      - bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
+        interval: 30s
+        path: /metrics
+        port: https
+        scheme: https
+        tlsConfig:
+          caFile: /etc/prometheus/configmaps/serving-certs-ca-bundle/service-ca.crt
+          serverName: scheduler.openshift-kube-scheduler.svc
+      jobLabel: job
+      namespaceSelector:
+        matchNames:
+        - openshift-kube-scheduler
+      selector:
+        matchLabels:
+          job: kube-scheduler
+    - name: openshift-kube-controller-manager
+      endpoints:
+      - bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
+        interval: 30s
+        port: https
+        scheme: https
+        tlsConfig:
+          caFile: /etc/prometheus/configmaps/serving-certs-ca-bundle/service-ca.crt
+          serverName: kube-controller-manager.openshift-kube-controller-manager.svc
+      jobLabel: job
+      namespaceSelector:
+        matchNames:
+        - openshift-kube-controller-manager
+      selector:
+        matchLabels:
+          job: kube-controller-manager
+    prometheusSpec:
+      volumeMounts:
+      - mountPath: /etc/prometheus/secrets/kube-etcd-client-certs
+        name: secret-kube-etcd-client-certs
+        readOnly: true
+      - mountPath: /etc/prometheus/configmaps/serving-certs-ca-bundle
+        name: configmap-serving-certs-ca-bundle
+        readOnly: true
+      volumes:
+      - name: secret-kube-etcd-client-certs
+        secret:
+          secretName: kube-etcd-client-certs
+      - configMap:
+          name: serving-certs-ca-bundle
+        name: configmap-serving-certs-ca-bundle
+  prometheusOperator:
+    serviceAccount:
+      create: false
+      # Service account name must match service account created below
+      name: 'dnation-monitoring-prometheus-operator'
+    # Disable default kubelet service
+    kubeletService:
+      enabled: false
+    # Disable operator in openshift monitoring
+    denyNamespaces: 'openshift-monitoring'
+  prometheus-node-exporter:
+    serviceAccount:
+      create: false
+      # Service account name must match service account created below
+      name: 'dnation-monitoring-node-exporter'
+    ## Extra args extended with `rootfs`, `squashfs` and `nsfs` file systems
+    ## For default extra args see ref: https://github.com/prometheus-community/helm-charts/blob/main/charts/kube-prometheus-stack/values.yaml#L1220
+    ##
+    extraArgs:
+      - --collector.filesystem.ignored-mount-points=^/(dev|proc|sys|var/lib/docker/.+)($|/)
+      - --collector.filesystem.ignored-fs-types=^(rootfs|squashfs|nsfs|autofs|binfmt_misc|cgroup|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|sysfs|tracefs)$
+    service:
+      ## Set different port than openshift-monitoring uses
+      port: 9200
+      targetPort: 9200
+
+  ## Component scraping kube scheduler
+  ##
+  kubeScheduler:
+    enabled: false
+
+  ## Component scraping the kube controller manager
+  ##
+  kubeControllerManager:
+    enabled: false
+
+  ## Component scraping etcd
+  ##
+  kubeEtcd:
+    enabled: false
+
+  ## Component scraping kubelet
+  ##
+  kubelet:
+    enabled: false
+
+  ## Component scraping kubeProxy
+  ##
+  kubeProxy:
+    enabled: false
+
+  ## Component scraping coreDns
+  ##
+  coreDns:
+    enabled: false
+
+openshift:
+  # Set to true if you use openshift cluster
+  enabled: true
+  # Service accounts to create
+  serviceAccounts:
+    - dnation-monitoring-alertmanager
+    - dnation-monitoring-prometheus-operator
+    - dnation-monitoring-prometheus
+    - dnation-monitoring-kubernetes-jsonnet-translator
+    - dnation-monitoring-grafana
+    - dnation-monitoring-kube-state-metrics
+    - dnation-monitoring-loki
+    - dnation-monitoring-node-exporter
+    - dnation-monitoring-promtail
+    - dnation-monitoring-thanos-query

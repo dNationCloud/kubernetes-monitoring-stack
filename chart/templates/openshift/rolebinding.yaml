@@ -1,0 +1,23 @@
+{{ if .Values.openshift.enabled }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  annotations:
+    "helm.sh/hook": pre-install, pre-upgrade, post-delete
+  name: {{ .Release.Name }}-openshift-rolebinding
+  namespace: {{ .Release.Namespace }}
+subjects:
+  - kind: ServiceAccount
+    name: kube-prometheus-admission
+    namespace: {{ $.Release.Namespace }}
+  {{- range .Values.openshift.serviceAccounts}}
+  - kind: ServiceAccount
+    name: {{.}}
+    namespace: {{ $.Release.Namespace }}
+  {{- end }}
+
+roleRef:
+  kind: Role
+  name: {{ .Release.Name }}-openshift-role
+  apiGroup: rbac.authorization.k8s.io
+{{ end }}

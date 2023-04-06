@@ -43,9 +43,9 @@ thanos:
       - dnssrv+_http-cluster-1._tcp.thanos-query-envoy.monitoring.svc.cluster.local
 
 kube-prometheus-stack:
-  prometheus: 
+  prometheus:
     prometheusSpec:
-      externalLabels: 
+      externalLabels:
         cluster: observer-cluster
   grafana:
     ingress:

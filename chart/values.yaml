@@ -300,6 +300,14 @@ kube-prometheus-stack:
           severity: 'warning'
         equal: ['alertname']
 
+# Values for Openshift clusters
+openshift:
+  # Set to true if you use openshift cluster
+  enabled: false
+  # If null, the helmchart creates a new scc
+  existingSecurityContextConstraints: null
+  # Service accounts that kubernetes monitoring stack uses
+  serviceAccounts: []
 extraServices: []
   # - name: addservice
   #   namespace: targetnamespace
