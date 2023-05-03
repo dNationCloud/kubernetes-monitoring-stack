@@ -28,6 +28,29 @@ namespaceOverride: ""
 ##
 fullnameOverride: ""
 
+ssl-exporter:
+  enabled: false
+  serviceMonitor:
+  #  We can enable the service monitor, because we have prometheus in our monitoring stack
+    enabled: true
+
+  # # SSL Exporter example config
+  # # Configure external URLs to scrape
+  #   externalTargets:
+  #   - example.com:443
+  # # Configure  kubernetes secrets to scrape
+  #   secretTargets:
+  # # e.g. all secrets across all namespaces
+  #   - "*/*"
+  # # Certificate files on control plane nodes
+  #   fileTargets:
+  # # Included in default values of ssl-exporter helm chart
+  #   - "/etc/kubernetes/pki/**/*.crt"
+  # # Certificates within kubeconfig files
+  #   kubeconfigTargets:
+  # # Included in default values of ssl-exporter helm chart
+  #   - /etc/kubernetes/admin.conf
+
 thanos:
   enabled: true
   queryFrontend:
