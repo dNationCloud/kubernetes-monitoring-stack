@@ -73,6 +73,9 @@ Generate cluster section for 1 workload cluster in envoy config
 {{- define "envoy.cluster" -}}
 - name: {{ $.name }}
   connect_timeout: 30s
+  {{- if $.maxRequestsPerConnection }}
+  max_requests_per_connection: {{ $.maxRequestsPerConnection }}
+  {{- end }}
   type: LOGICAL_DNS
   http2_protocol_options: {}
   dns_lookup_family: V4_ONLY
