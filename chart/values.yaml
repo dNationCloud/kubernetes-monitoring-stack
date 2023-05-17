@@ -84,7 +84,11 @@ grafanaDatasourcesAsConfigMap:
     - name: cluster-logs
       isDefault: false
       type: loki
-      url: "http://{{ .Release.Name }}-loki:3100"
+      url: http://loki-gateway
+      jsonData:
+        httpHeaderName1: 'X-Scope-OrgID'
+      secureJsonData:
+        httpHeaderValue1: '1'
 
 ## Deploy a dnation-kubernetes-monitoring
 ## ref: https://github.com/dNationCloud/kubernetes-monitoring
@@ -114,6 +118,17 @@ dnation-kubernetes-monitoring:
 ##
 loki:
   enabled: true
+  auth_enabled: false
+  backend:
+    replicas: 2
+  write:
+    # -- Number of replicas for the write
+    replicas: 2
+  read:
+    # -- Number of replicas for the read
+    replicas: 2
+  test:
+    enabled: false
 
 ## Deploy a loki-distributed
 ## with s3-compatible object storage
@@ -144,7 +159,9 @@ loki-distributed:
 promtail:
   enabled: true
   config:
-    lokiAddress: "http://{{ .Release.Name }}-loki:3100/loki/api/v1/push"
+    clients:
+    - url: http://loki-gateway/loki/api/v1/push
+      tenant_id: 1
   # !IMPORTANT: each cluster must have prometheus external label 'cluster' with unique value.
   # This will be used as cluster discriminator when metrics are aggregated on observer cluster.
   extraArgs:

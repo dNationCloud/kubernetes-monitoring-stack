@@ -46,14 +46,17 @@ If you're experiencing issues please read the [documentation](https://dnationclo
 
 # Kubernetes support (tested)
 
-||dNation monitoring v1.3|dNation monitoring v1.4|dNation monitoring v2.0|dNation monitoring v2.3|
-|-|-|-|-|-|
-|Kubernetes v1.17|✓||||
-|Kubernetes v1.18|✓||||
-|Kubernetes v1.19|✓||||
-|Kubernetes v1.20|✓||||
-|Kubernetes v1.21||✓|✓||
-|Kubernetes v1.22||✓|✓|✓|
+||dNation monitoring v1.3|dNation monitoring v1.4|dNation monitoring v2.0|dNation monitoring v2.3|dNation monitoring v2.5|
+|-|-|-|-|-|-|
+|Kubernetes v1.17|✓|||||
+|Kubernetes v1.18|✓|||||
+|Kubernetes v1.19|✓|||||
+|Kubernetes v1.20|✓|||||
+|Kubernetes v1.21||✓|✓|||
+|Kubernetes v1.22||✓|✓|✓||
+|Kubernetes v1.23||||✓|✓|
+|Kubernetes v1.24|||||✓|
+|Kubernetes v1.25|||||✓|
 
 # Multicluster monitoring support
 This chart supports also setup of multicluster monitoring using Thanos. The deployment architecture follows "observer cluster/workload clusters" pattern, where there is one observer k8s cluster which provides centralized monitoring overview of multiple workload k8s clusters. Helm values files enabling the multicluster monitoring are located inside `multicluster-config/` directory. There are 2 files in total:

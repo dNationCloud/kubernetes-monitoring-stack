@@ -13,7 +13,7 @@ Prerequisites
 
 Create KinD cluster
 ```bash
-kind create cluster --config helpers/kind_cluster_config.yaml --image kindest/node:v1.22.1
+kind create cluster --config helpers/kind_cluster_config.yaml --image kindest/node:v1.25.9
 ```
 
 Install Kubernetes Monitoring Stack
