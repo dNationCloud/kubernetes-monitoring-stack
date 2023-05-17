@@ -13,23 +13,9 @@
 # limitations under the License.
 #
 
-apiVersion: kubeproxy.config.k8s.io/v1alpha1
-kind: KubeProxyConfiguration
-metricsBindAddress: 0.0.0.0:10249
----
-apiVersion: kubeadm.k8s.io/v1
-kind: ClusterConfiguration
-etcd:
-  local:
-    extraArgs:
-      listen-metrics-urls: http://0.0.0.0:2381
-scheduler:
-  extraArgs:
-    secure-port: "10259"
-    bind-address: 0.0.0.0
-    authorization-always-allow-paths: "/healthz,/readyz,/livez,/metrics"
-controllerManager:
-  extraArgs:
-    secure-port: "10257"
-    bind-address: 0.0.0.0
-    authorization-always-allow-paths: "/healthz,/readyz,/livez,/metrics"
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+- role: worker
+- role: worker
+- role: control-plane

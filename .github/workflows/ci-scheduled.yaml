@@ -42,6 +42,10 @@ jobs:
             stack-version: v1.4
           - k8s-version: v1.22.1
             stack-version: v1.4
+          - k8s-version: v1.23.13
+            stack-version: v2.4
+          - k8s-version: v1.25.9
+            stack-version: v2.5
 
     steps:
     - name: Checkout
