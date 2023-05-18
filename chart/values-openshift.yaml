@@ -9,9 +9,10 @@ promtail:
 
 dnation-kubernetes-monitoring:
   dnation-kubernetes-jsonnet-translator:
-    create: false
-    # Service account name must match service account created below
-    name: 'dnation-monitoring-kubernetes-jsonnet-translator'
+    serviceAccount:
+      create: false
+      # Service account name must match service account created below
+      name: 'dnation-monitoring-kubernetes-jsonnet-translator'
 
 loki:
   serviceAccount:
