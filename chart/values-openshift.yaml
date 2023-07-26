@@ -1,3 +1,10 @@
+ssl-exporter:
+  securityContext:
+    privileged: true
+  serviceAccount:
+    create: false
+    name: dnation-monitoring-ssl-exporter
+
 promtail:
   containerSecurityContext:
     privileged: true
@@ -295,3 +302,4 @@ openshift:
     - dnation-monitoring-node-exporter
     - dnation-monitoring-promtail
     - dnation-monitoring-thanos-query
+    - dnation-monitoring-ssl-exporter

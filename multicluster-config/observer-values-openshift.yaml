@@ -18,6 +18,12 @@
 # monitorig at observer
 # Declare variables to be passed into helm chart dependencies.
 
+ssl-exporter:
+  securityContext:
+    privileged: true
+  serviceAccount:
+    create: false
+    name: dnation-monitoring-ssl-exporter
 thanosStorage:
   secret:
     name: thanos-objstore-config
@@ -171,3 +177,4 @@ openshift:
   - dnation-monitoring-thanos-query
   - dnation-monitoring-thanos-query-frontend
   - dnation-monitoring-thanos-storegateway
+  - dnation-monitoring-ssl-exporter
