@@ -21,6 +21,8 @@ thanos:
   queryFrontend:
     enabled: false
   query:
+    replicaLabel:
+      - prometheus_replica  
     dnsDiscovery:
       sidecarsService: kube-prometheus-thanos-discovery
       sidecarsNamespace: "{{ .Release.Namespace }}"
