@@ -17,7 +17,7 @@ apiVersion: kubeproxy.config.k8s.io/v1alpha1
 kind: KubeProxyConfiguration
 metricsBindAddress: 0.0.0.0:10249
 ---
-apiVersion: kubeadm.k8s.io/v1
+apiVersion: kubeadm.k8s.io/v1beta3
 kind: ClusterConfiguration
 etcd:
   local:
