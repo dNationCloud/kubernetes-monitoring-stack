@@ -48,3 +48,7 @@ kube-prometheus-stack:
           key: objstore.yml
     thanosService:
       enabled: true
+
+dnation-kubernetes-monitoring:
+  grafanaDashboards:
+    enable: false
