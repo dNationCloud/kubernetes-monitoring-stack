@@ -67,6 +67,10 @@ kube-prometheus-stack:
     thanosService:
       enabled: true
 
+dnation-kubernetes-monitoring:
+  grafanaDashboards:
+    enable: false
+
 openshift:
   serviceAccounts:
     - dnation-monitoring-alertmanager
