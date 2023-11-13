@@ -212,6 +212,7 @@ kube-prometheus-stack:
       ##
       thanos:
         logLevel: info
+        objectStorageConfig: {}
     thanosService:
       enabled: true
 
@@ -275,6 +276,7 @@ kube-prometheus-stack:
     ## Define security context of grafana container
     ##
     securityContext:
+      runAsNonRoot: false
       runAsUser: 0
       runAsGroup: 0
       fsGroup: 0
@@ -312,9 +314,8 @@ kube-prometheus-stack:
         provider:
           name: 'dNation'
           folder: 'dNation'
-          disableDeletion: false
+          disableDelete: false
           allowUiUpdates: true
-          editable: true
       datasources:
         label: grafana_datasource
         defaultDatasourceEnabled: false

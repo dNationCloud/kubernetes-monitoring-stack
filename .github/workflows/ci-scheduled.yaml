@@ -28,10 +28,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - k8s-version: v1.17.5
-            stack-version: v1.3
-          - k8s-version: v1.18.8
-            stack-version: v1.3
           - k8s-version: v1.19.7
             stack-version: v1.3
           - k8s-version: v1.20.2

@@ -48,8 +48,6 @@ If you're experiencing issues please read the [documentation](https://dnationclo
 
 ||dNation monitoring v1.3|dNation monitoring v1.4|dNation monitoring v2.0|dNation monitoring v2.3|dNation monitoring v2.5|
 |-|-|-|-|-|-|
-|Kubernetes v1.17|✓|||||
-|Kubernetes v1.18|✓|||||
 |Kubernetes v1.19|✓|||||
 |Kubernetes v1.20|✓|||||
 |Kubernetes v1.21||✓|✓|||
