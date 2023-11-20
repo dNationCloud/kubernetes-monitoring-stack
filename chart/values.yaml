@@ -162,8 +162,8 @@ promtail:
     clients:
     - url: http://loki-gateway/loki/api/v1/push
       tenant_id: 1
-  # !IMPORTANT: each cluster must have prometheus external label 'cluster' with unique value.
-  # This will be used as cluster discriminator when metrics are aggregated on observer cluster.
+  # !IMPORTANT: each cluster must have promtail external label 'cluster' with unique value.
+  # This will be used as cluster discriminator when logs are aggregated on observer cluster.
   extraArgs:
     - -client.external-labels=cluster=observer-cluster
 
@@ -201,6 +201,11 @@ kube-prometheus-stack:
   ##
   prometheus:
     prometheusSpec:
+      # !IMPORTANT: each cluster must have prometheus external label 'cluster' with unique value.
+      # This will be used as cluster discriminator when metrics are aggregated on observer cluster.
+      externalLabels:
+        cluster: observer-cluster
+
       ## PrometheusRules to be selected for target discovery
       ##
       ruleSelector:
