@@ -1,5 +1,5 @@
 # !IMPORTANT: each cluster must have prometheus and promtail external label 'cluster' with unique value.
-# This will be used as cluster discriminator when metrics are aggregated on observer cluster.
+# This will be used as cluster discriminator when metrics and logs are aggregated on observer cluster.
 
 thanosStorage:
   # More details about supported storage types and config options can be found here: https://thanos.io/tip/thanos/storage.md/
