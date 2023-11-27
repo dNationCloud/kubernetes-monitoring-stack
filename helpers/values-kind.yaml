@@ -20,4 +20,4 @@ kube-prometheus-stack:
 
   kubeControllerManager:
     serviceMonitor:
-     insecureSkipVerify: true
+      insecureSkipVerify: true
