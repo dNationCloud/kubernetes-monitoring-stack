@@ -240,7 +240,7 @@ kube-prometheus-stack:
     kubeletService:
       enabled: false
     # Disable operator in openshift monitoring
-    denyNamespaces: 'openshift-monitoring'
+    denyNamespaces: ['openshift-monitoring']
   prometheus-node-exporter:
     serviceAccount:
       create: false
