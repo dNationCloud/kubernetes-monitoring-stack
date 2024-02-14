@@ -51,11 +51,61 @@ ssl-exporter:
   # # Included in default values of ssl-exporter helm chart
   #   - /etc/kubernetes/admin.conf
 
+## Deploy a prometheus-blackbox-exporter
+## ref: https://github.com/prometheus-community/helm-charts/tree/main/charts/prometheus-blackbox-exporter
+##
+prometheus-blackbox-exporter:
+  enabled: false
+  releaseLabel: true
+  prometheusRule:
+    enabled: true
+    additionalLabels:
+      prometheus_rule: '1'
+    rules:
+    - alert: BlackboxProbeFailed
+      expr: 'probe_success == 0'
+      for: 5m
+      labels:
+        severity: critical
+      annotations:
+        message: 'Blackbox probe on target: {{ $labels.target }} failed'
+    - alert: BlackboxSlowProbe
+      expr: 'avg_over_time(probe_duration_seconds[1m]) > 5'
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        message: 'Blackbox probe on target: {{ $labels.target }} took more than 5s to complete, probe time = {{ $value }}'
+    - alert: BlackboxSslCertificateWillExpireSoon
+      expr: 'round((probe_ssl_earliest_cert_expiry - time()) / 86400, 0.1) < 30'
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        message: 'SSL certificate expires in {{ $value }} days'
+  serviceMonitor:
+    enabled: true
+#    targets:
+#    - name: dnation-cloud
+#      url: https://dnation.cloud/
+
 thanos:
   enabled: true
   queryFrontend:
     enabled: false
+    extraFlags:
+    - --query-range.split-interval=12h
+    - --query-frontend.log-queries-longer-than=10s
+    - --query-frontend.compress-responses
+    - |-
+      --query-range.response-cache-config="config":
+        "max_size": "500MB"
+        "max_size_items": 0
+        "validity": 0s
+      "type": "in-memory"
   query:
+    extraFlags:
+    - --query.auto-downsampling
     dnsDiscovery:
       sidecarsService: kube-prometheus-thanos-discovery
       sidecarsNamespace: "{{ .Release.Namespace }}"
@@ -63,6 +113,12 @@ thanos:
     enabled: false
   compactor:
     enabled: false
+    retentionResolutionRaw: 2d
+    retentionResolution5m: 10d
+    retentionResolution1h: 15d
+    extraFlags:
+    - --compact.concurrency=3
+    - --downsample.concurrency=3
   storegateway:
     enabled: false
   ruler:

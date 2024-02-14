@@ -22,7 +22,9 @@ Prerequisites
 * For production environment we recommend (based on our experience) a kubernetes cluster with at least 2 worker nodes and 4 GiB RAM per node or more.
 
 
-dNation Kubernetes Monitoring Stack umbrella chart is hosted in the [dNation helm repository](https://artifacthub.io/packages/search?repo=dnationcloud). By default, dNation Kubernetes Monitoring Stack installs Prometheus with Thanos sidecar and Thanos Query. For more details check [Multicluster monitoring support](#multicluster-monitoring-support) section.
+dNation Kubernetes Monitoring Stack umbrella chart is hosted in the [dNation helm repository](https://artifacthub.io/packages/search?repo=dnationcloud). By default, dNation Kubernetes Monitoring Stack installs Prometheus with Thanos sidecar and Thanos Query.
+Thanos components are tuned according to [SCS Thanos tuning](https://github.com/SovereignCloudStack/k8s-observability/blob/main/docs/thanos-tuning.md).
+For more details check [Multicluster monitoring support](#multicluster-monitoring-support) section.
 ```bash
 # Add dNation helm repository
 helm repo add dnationcloud https://dnationcloud.github.io/helm-hub/
@@ -119,7 +121,9 @@ kube-prometheus-stack:
       hosts:
         - <grafana-endpoint>
 
-thanos.query.stores: []
+thanos:
+  query:
+    stores: []
 ```
 
 - `thanosStorage.config` field contains configuration of object storage used by thanos components in the observer cluster. More info can be found here: https://thanos.io/tip/thanos/storage.md/
@@ -193,8 +197,10 @@ kube-prometheus-stack:
       hosts:
         - <grafana-endpoint>
 
-thanos.query.stores:
-   - dnssrv+_http-[envoy-name]._tcp.thanos-query-envoy.[namespace].svc.cluster.local
+thanos:
+  query:
+    stores:
+    - dnssrv+_http-[envoy-name]._tcp.thanos-query-envoy.[namespace].svc.cluster.local
 ```
 
 Thanos sidecar in workload clusters is published with an Ingress object with TLS client auth. To trust the observer cluster CA you need to create following two secerets:
@@ -316,6 +322,25 @@ ssl-exporter:
 More information about configuration is in the [helmchart repo](https://github.com/dNationCloud/ssl-exporter)
 and [ribbybibby/ssl_exporter](https://github.com/ribbybibby/ssl_exporter) repo.
 
+# Prometheus Blackbox Exporter
+Our monitoring stack contains a helmchart for
+[prometheus-blackbox-exporter](https://github.com/prometheus-community/helm-charts/tree/main/charts/prometheus-blackbox-exporter)
+as an optional component
+## Configuration
+Enable prometheus-blackbox-exporter by adding `--set prometheus-blackbox-exporter.enabled=true` flag to the `helm` command, or enable it in values file.
+You can further configure prometheus-blackbox-exporter with values file, e.g.:
+```yaml
+prometheus-blackbox-exporter:
+  enabled: true
+  serviceMonitor:
+    targets:
+    - name: dnation-cloud
+      url: https://dnation.cloud/
+# enable also dashboards
+dnation-kubernetes-monitoring:
+  blackboxMonitoring:
+    enabled: true
+```
 
 # Contribution guidelines
 If you want to contribute, please read following:
