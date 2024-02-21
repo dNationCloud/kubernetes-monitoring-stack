@@ -93,16 +93,6 @@ thanos:
   enabled: true
   queryFrontend:
     enabled: false
-    extraFlags:
-    - --query-range.split-interval=12h
-    - --query-frontend.log-queries-longer-than=10s
-    - --query-frontend.compress-responses
-    - |-
-      --query-range.response-cache-config="config":
-        "max_size": "500MB"
-        "max_size_items": 0
-        "validity": 0s
-      "type": "in-memory"
   query:
     extraFlags:
     - --query.auto-downsampling
@@ -113,12 +103,6 @@ thanos:
     enabled: false
   compactor:
     enabled: false
-    retentionResolutionRaw: 2d
-    retentionResolution5m: 10d
-    retentionResolution1h: 15d
-    extraFlags:
-    - --compact.concurrency=3
-    - --downsample.concurrency=3
   storegateway:
     enabled: false
   ruler:
