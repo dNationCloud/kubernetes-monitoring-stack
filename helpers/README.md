@@ -13,12 +13,12 @@ Prerequisites
 
 Create KinD cluster
 ```bash
-kind create cluster --config helpers/kind_cluster_config.yaml --image kindest/node:v1.25.11
+kind create cluster --config helpers/kind_cluster_config.yaml --image kindest/node:v1.30.0
 ```
 
 Install Kubernetes Monitoring Stack
 ```bash
-helm install monitoring chart --dependency-update -f helpers/values-kind.yaml
+helm upgrade --install monitoring chart --dependency-update -f helpers/values-kind.yaml
 ```
 
 Follow installation notes and use Port Forwarding if you want to access the Grafana server from outside your KinD cluster

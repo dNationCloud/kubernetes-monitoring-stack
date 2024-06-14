@@ -11,58 +11,55 @@ An umbrella helm chart for [dNation Kubernetes Monitoring](https://github.com/dN
 
 * [dnation-kubernetes-monitoring](https://github.com/dNationCloud/kubernetes-monitoring)
 * [kube-prometheus-stack](https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack)
-* [thanos](https://github.com/bitnami/charts/tree/master/bitnami/thanos) (to support multicluster monitoring)
-* [loki](https://github.com/grafana/helm-charts/tree/main/charts/loki)
-* [loki-distributed](https://github.com/grafana/helm-charts/tree/main/charts/loki-distributed)
+* [thanos](https://github.com/bitnami/charts/tree/master/bitnami/thanos)
+* [loki](https://github.com/grafana/loki/tree/main/production/helm/loki)
 * [promtail](https://github.com/grafana/helm-charts/tree/main/charts/promtail)
+* [ssl-exporter](https://github.com/dNationCloud/ssl-exporter)  # optional
+* [prometheus-blackbox-exporter](https://github.com/prometheus-community/helm-charts/tree/main/charts/prometheus-blackbox-exporter)   # optional
+* [loki-distributed](https://github.com/grafana/helm-charts/tree/main/charts/loki-distributed)  # deprecated, see [loki](#loki)
+
 
 # Installation
 Prerequisites
 * [Helm3](https://helm.sh/)
-* For production environment we recommend (based on our experience) a kubernetes cluster with at least 2 worker nodes and 4 GiB RAM per node or more.
+* For production environment we recommend (based on our experience) a kubernetes cluster with at least 3 worker nodes and 4 GiB RAM per node or more.
 
+dNation Kubernetes Monitoring Stack umbrella chart is hosted in the [dNation helm repository](https://artifacthub.io/packages/search?repo=dnationcloud).
+By default, dNation Kubernetes Monitoring Stack installs Grafana with dNation dashboards, Prometheus with Thanos and Loki in simple scalable mode.
 
-dNation Kubernetes Monitoring Stack umbrella chart is hosted in the [dNation helm repository](https://artifacthub.io/packages/search?repo=dnationcloud). By default, dNation Kubernetes Monitoring Stack installs Prometheus with Thanos sidecar and Thanos Query.
-Thanos components are tuned according to [SCS Thanos tuning](https://github.com/SovereignCloudStack/k8s-observability/blob/main/docs/thanos-tuning.md).
-For more details check [Multicluster monitoring support](#multicluster-monitoring-support) section.
 ```bash
 # Add dNation helm repository
 helm repo add dnationcloud https://dnationcloud.github.io/helm-hub/
 helm repo update
 
-# Install dNation Kubernetes Monitoring Stack (Loki in monolithic mode)
+# Install dNation Kubernetes Monitoring Stack
 helm install monitoring dnationcloud/dnation-kubernetes-monitoring-stack
-
-# Install dNation Kubernetes Monitoring Stack (Loki in distributed mode with s3-compatible storage)
-helm install monitoring dnationcloud/dnation-kubernetes-monitoring-stack \
-  -f https://raw.githubusercontent.com/dNationCloud/kubernetes-monitoring-stack/main/chart/values-loki-distributed.yaml \
-  --set loki-distributed.loki.storageConfig.aws.s3="<s3 path-style URL with access and secret keys>"
 ```
 
-Search for `Monitoring` dashboard in the `dNation` directory. The fun starts here :).
-If you want to set the `Monitoring` dashboard as a home dashboard follow [here](https://grafana.com/docs/grafana/latest/administration/change-home-dashboard/#set-the-default-dashboard-through-preferences).
+Installation notes:
+    - Thanos components are tuned according to [SCS Thanos tuning](https://github.com/SovereignCloudStack/k8s-observability/blob/main/docs/thanos-tuning.md)
+    - If you're experiencing issues please read the [documentation](https://dnationcloud.github.io/kubernetes-monitoring/docs/documentation) and [FAQ](https://dnationcloud.github.io/kubernetes-monitoring/helpers/FAQ/)
 
-For `multi-cluster centralized logging` install monitoring on your workload cluster without Loki, set `loki.enabled: false` in [values.yaml](chart/values.yaml) and also configure `promtail.config.lokiAddress` to send logs to your Loki instance. On your central cluster install it in classic way with `loki.enable: true`.
+Search for `Infrastructure services monitoring` dashboard in the `dNation` directory. The fun starts here :).
+If you want to set the `Infrastructure services monitoring` dashboard as a home dashboard follow [here](https://grafana.com/docs/grafana/latest/administration/change-home-dashboard/#set-the-default-dashboard-through-preferences).
 
-If you're experiencing issues please read the [documentation](https://dnationcloud.github.io/kubernetes-monitoring/docs/documentation) and [FAQ](https://dnationcloud.github.io/kubernetes-monitoring/helpers/FAQ/).
+# Loki
+## loki-distributed
 
-# Kubernetes support (tested)
+This chart is deprecated and replaced by [loki](https://github.com/grafana/loki/tree/main/production/helm/loki) helm chart.
+Loki helm chart is the only helm chart you should use for loki helm deployment. It supports loki deployment in monolithic, scalable
+and even [distributed mode](https://grafana.com/docs/loki/next/setup/install/helm/install-microservices/).
 
-||dNation monitoring v1.3|dNation monitoring v1.4|dNation monitoring v2.0|dNation monitoring v2.3|dNation monitoring v2.5|
-|-|-|-|-|-|-|
-|Kubernetes v1.19|✓|||||
-|Kubernetes v1.20|✓|||||
-|Kubernetes v1.21||✓|✓|||
-|Kubernetes v1.22||✓|✓|✓||
-|Kubernetes v1.23||||✓|✓|
-|Kubernetes v1.24|||||✓|
-|Kubernetes v1.25|||||✓|
+We recommend use the loki helm chart for all fresh installations. If you already use loki-distributed helm chart, check
+the migration [guide](https://grafana.com/docs/loki/latest/setup/migrate/migrate-from-distributed/).
 
 # Multicluster monitoring support
 This chart supports also setup of multicluster monitoring using Thanos. The deployment architecture follows "observer cluster/workload clusters" pattern, where there is one observer k8s cluster which provides centralized monitoring overview of multiple workload k8s clusters. Helm values files enabling the multicluster monitoring are located inside `multicluster-config/` directory. There are 2 files in total:
 
 - `multicluster-config/observer-values.yaml` - contains config for installation of observer cluster
 - `multicluster-config/workload-values.yaml` - contains config for installation of workload cluster(s)
+
+For `multi-cluster centralized logging` install monitoring on your workload cluster without Loki, set `loki.enabled: false` in [values.yaml](chart/values.yaml) and also configure `promtail.config.lokiAddress` to send logs to your Loki instance. On your central cluster install it in classic way with `loki.enable: true`.
 
 ## Architecture
 
@@ -220,11 +217,6 @@ dnationcloud/dnation-kubernetes-monitoring-stack \
 -f <custom-observer-values-sample.yaml>
 ```
 # Openshift support
-## Tested versions
-
-||dNation monitoring v1.3|dNation monitoring v1.4|dNation monitoring v2.0|dNation monitoring v2.3|
-|-|-|-|-|-|
-|Openshift v4.7||||✓|
 ## Installation
 To install the chart on an openshift cluster, use additional [values for openshift](/chart/values-openshift.yaml)
 ```shell
