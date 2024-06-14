@@ -1,0 +1,105 @@
+# For CI testing only!
+#
+# Minio provides post-install hook to create bucket
+# however the hook won't be executed if helm install is run
+# with --wait flag.
+# This breaks GitHub CI as chart-testing tool applies --wait flag, see:
+# https://github.com/helm/chart-testing/issues/202
+# Hence, this job is a workaround for that, and
+# it is applied only when `loki.ci=true` variable is passed to the chart.
+# Related issues:
+#  - https://github.com/grafana/mimir/issues/2464
+#  - https://github.com/grafana/loki/issues/9634
+# The job definition is taken from:
+#  - https://github.com/minio/minio/blob/master/helm/minio/templates/post-job.yaml
+{{- if .Values.loki.enabled }}
+{{- if (eq .Values.loki.ci true) }}
+{{- if .Values.loki.minio.enabled }}
+{{- if .Values.loki.minio.buckets }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: minio-post-job
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    app: {{ template "minio.name" . }}-make-bucket-job
+    chart: {{ template "minio.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+{{- with .Values.loki.minio.makeBucketJob.annotations }}
+  annotations:
+{{ toYaml . | indent 4 }}
+{{- end }}
+spec:
+  template:
+    metadata:
+      labels:
+        app: {{ template "minio.name" . }}-job
+        release: {{ .Release.Name }}
+{{- if .Values.loki.minio.podLabels }}
+{{ toYaml .Values.loki.minio.podLabels | indent 8 }}
+{{- end }}
+{{- if .Values.loki.minio.makeBucketJob.podAnnotations }}
+      annotations:
+{{ toYaml .Values.loki.minio.makeBucketJob.podAnnotations | indent 8 }}
+{{- end }}
+    spec:
+      restartPolicy: OnFailure
+{{- include "minio.imagePullSecrets" . | indent 6 }}
+{{- if .Values.loki.minio.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.loki.minio.makeBucketJob.nodeSelector | indent 8 }}
+{{- end }}
+{{- with .Values.loki.minio.makeBucketJob.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+{{- end }}
+{{- with .Values.loki.minio.makeBucketJob.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+{{- end }}
+{{- if .Values.loki.minio.makeBucketJob.securityContext.enabled }}
+      securityContext:
+        runAsUser: {{ .Values.loki.minio.makeBucketJob.securityContext.runAsUser }}
+        runAsGroup: {{ .Values.loki.minio.makeBucketJob.securityContext.runAsGroup }}
+        fsGroup: {{ .Values.loki.minio.makeBucketJob.securityContext.fsGroup }}
+{{- end }}
+      volumes:
+        - name: minio-configuration
+          projected:
+            sources:
+            - configMap:
+                name: {{ .Release.Name }}-minio
+            - secret:
+                name: {{ .Release.Name }}-minio
+        {{- if .Values.loki.minio.tls.enabled }}
+        - name: cert-secret-volume-mc
+          secret:
+            secretName: {{ .Values.loki.minio.tls.certSecret }}
+            items:
+            - key: {{ .Values.loki.minio.tls.publicCrt }}
+              path: CAs/public.crt
+        {{ end }}
+      containers:
+      - name: minio-mc
+        image: "{{ .Values.loki.minio.mcImage.repository }}:{{ .Values.loki.minio.mcImage.tag }}"
+        imagePullPolicy: {{ .Values.loki.minio.mcImage.pullPolicy }}
+        command: ["/bin/sh", "/config/initialize"]
+        env:
+          - name: MINIO_ENDPOINT
+            value: {{ .Release.Name }}-minio
+          - name: MINIO_PORT
+            value: {{ .Values.loki.minio.service.port | quote }}
+        volumeMounts:
+          - name: minio-configuration
+            mountPath: /config
+          {{- if .Values.loki.minio.tls.enabled }}
+          - name: cert-secret-volume-mc
+            mountPath: {{ .Values.loki.minio.configPathmc }}certs
+          {{ end }}
+        resources:
+{{ toYaml .Values.loki.minio.makeBucketJob.resources | indent 10 }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}

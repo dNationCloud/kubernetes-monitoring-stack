@@ -18,6 +18,12 @@
 # with loki-distributed.
 # Declare variables to be passed into helm chart dependencies.
 
+############################################## WARNING ###############################################################
+##
+## DEPRECATED VALUES
+##
+## The following values are deprecated and will be removed in a future version of the helm chart!
+############################################## WARNING ##############################################################
 ## Configure additional grafana datasources
 grafanaDatasourcesAsConfigMap:
   cluster-logs:
