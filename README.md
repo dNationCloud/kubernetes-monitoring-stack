@@ -41,7 +41,7 @@ Installation notes:
     - If you're experiencing issues please read the [documentation](https://dnationcloud.github.io/kubernetes-monitoring/docs/documentation) and [FAQ](https://dnationcloud.github.io/kubernetes-monitoring/helpers/FAQ/)
 
 Search for `Infrastructure services monitoring` dashboard in the `dNation` directory. The fun starts here :).
-If you want to set the `Infrastructure services monitoring` dashboard as a home dashboard follow [here](https://grafana.com/docs/grafana/latest/administration/change-home-dashboard/#set-the-default-dashboard-through-preferences).
+If you want to set the `Infrastructure services monitoring` dashboard as a home dashboard follow [here](https://grafana.com/docs/grafana/latest/administration/organization-preferences/#change-the-default-home-dashboard).
 
 # Loki
 ## loki-distributed
