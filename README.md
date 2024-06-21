@@ -37,7 +37,7 @@ helm install monitoring dnationcloud/dnation-kubernetes-monitoring-stack
 ```
 
 Installation notes:
-    - Thanos components are tuned according to [SCS Thanos tuning](https://github.com/SovereignCloudStack/k8s-observability/blob/main/docs/thanos-tuning.md)
+    - Thanos components are tuned according to [SCS Thanos tuning](https://github.com/SovereignCloudStack/k8s-observability/blob/main/docs/tuning.md)
     - If you're experiencing issues please read the [documentation](https://dnationcloud.github.io/kubernetes-monitoring/docs/documentation) and [FAQ](https://dnationcloud.github.io/kubernetes-monitoring/helpers/FAQ/)
 
 Search for `Infrastructure services monitoring` dashboard in the `dNation` directory. The fun starts here :).
