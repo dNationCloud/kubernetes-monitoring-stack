@@ -1,0 +1,122 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: matrix-alertmanager-receiver-config
+data:
+  config.yaml: |
+    http:
+      port: 3000
+    matrix:
+      homeserver-url: https://matrix.example.com
+      user-id: "@user:matrix.example.com"
+      access-token: secret
+      room-mapping:
+        alert-room: "!somewhere:matrix.example.com"
+    templating:
+      computed-values:
+      - values:
+          color: white
+          title: INFO
+          icon: ℹ️
+      - values:
+          color: orange
+          title: WARNING
+          icon: ⚠️
+        when-matching-labels:
+          severity: warning
+      - values:
+          color: red
+          title: CRITICAL
+          icon: 🚨
+        when-matching-labels:
+          severity: critical
+      - values:
+          color: limegreen
+          title: RESOLVED
+          icon: ✅
+        when-matching-status: resolved
+      firing-template:
+        '<strong><font color="{{ .ComputedValues.color }}">{{ .ComputedValues.icon }} {{ .ComputedValues.title }} </font>from {{ .ExternalURL }}</strong><br>
+        {{- $alert := .Alert }}
+        {{- $externalURL := .ExternalURL }}
+        Annotations:
+        <ul>
+        {{- range $alert.Annotations.SortedPairs }}
+          {{- if eq .Name "link" }}
+            {{- $end := "now" }}
+            {{- if gt $alert.EndsAt.Unix 0 }}
+              {{- $end = (printf "%d000" $alert.EndsAt.Unix) }}
+            {{- end }}
+            {{- $grafanaRange := (printf "&from=%d000&to=%s" $alert.StartsAt.Unix $end) }}
+          <li><em>Detailed link</em>: <a href="{{ (printf "%s/d/%s%s" $externalURL .Value $grafanaRange) }}">here</a></li>
+          {{- else if or (eq .Name "message") (eq .Name "summary") }}
+          <li><em>{{ .Name }}</em>: <b>{{ .Value }}</b></li>
+          {{- else }}
+          <li><em>{{ .Name }}</em>: {{ .Value }}</li>
+          {{- end }}
+        {{- end }}
+        </ul>
+        Labels:
+        <ul>
+        {{- range $alert.Labels.SortedPairs }}
+          {{- if or (eq .Name "job") (or (eq .Name "severity") (or (eq .Name "namespace") (or (eq .Name "container")  (or (eq .Name "pod") (eq .Name "cluster"))))) }}
+          <li><em>{{ .Name }}</em>: <code>{{ .Value }}</code>
+          {{- else if eq .Name "alertname" }}
+          <li><em>{{ .Name }}</em>: <b><code>{{ .Value }}</code></b>
+          {{- else if or (eq .Name "node") (eq .Name "nodename") }}
+            {{- $job := "" }}
+            {{- range $alert.Labels.SortedPairs }}
+              {{- if eq .Name "job" }}
+                {{- $job = .Value }}
+              {{- end }}
+            {{- end }}
+          <li><em>{{ .Name }}</em>: <a href="{{ $externalURL }}/d/nodeexporter?from=now-5m&to=now&var-job={{ $job }}&var-instance={{ .Value }}"><code>{{ .Value }}</code></a></li>
+          {{- end }}
+        {{- end }}
+        </ul>'
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: matrix-alertmanager-receiver
+  labels:
+    app: matrix-alertmanager-receiver
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: matrix-alertmanager-receiver
+  template:
+    metadata:
+      labels:
+        app: matrix-alertmanager-receiver
+    spec:
+      containers:
+      - name: matrix-alertmanager-receiver
+        # https://hub.docker.com/r/metio/matrix-alertmanager-receiver
+        image: metio/matrix-alertmanager-receiver
+        ports:
+        - containerPort: 3000
+        volumeMounts:
+        - name: config
+          mountPath: /etc/config
+        args:
+        - "--config-path"
+        - "/etc/config/config.yaml"
+      volumes:
+      - name: config
+        configMap:
+          name: matrix-alertmanager-receiver-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: matrix-alertmanager-receiver
+spec:
+  selector:
+    app: matrix-alertmanager-receiver
+  ports:
+  - protocol: TCP
+    port: 3000
+    targetPort: 3000

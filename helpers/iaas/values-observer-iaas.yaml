@@ -1,0 +1,21 @@
+kube-prometheus-stack:
+  grafana:
+    dashboardProviders:
+      dashboardprovidersiaas.yaml:
+        apiVersion: 1
+        providers:
+        - name: iaas
+          folder: 'IaaS'
+          type: file
+          disableDeletion: false
+          editable: true
+          options:
+            path: /var/lib/grafana/dashboards/iaas
+    dashboards:
+      iaas:
+        openstack-exporter:
+          gnetId: 21085
+          revision: 3
+          datasource:
+          - name: DS_PROMETHEUS
+            value: thanos

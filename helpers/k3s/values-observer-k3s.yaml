@@ -1,0 +1,78 @@
+# Disable log stack (out of the scope of this guide)
+loki:
+  enabled: false
+promtail:
+  enabled: false
+dnation-kubernetes-monitoring:
+  grafanaDashboards:
+    isLoki: false
+grafanaDatasourcesAsConfigMap:
+  cluster-logs: null
+
+# Expose UIs
+kube-prometheus-stack:
+  grafana:
+    service:
+      type: NodePort
+      nodePort: 30000
+  alertmanager:
+    service:
+      type: NodePort
+      nodePort: 30001
+  prometheus:
+    service:
+      type: NodePort
+      nodePort: 30002
+  # K3s exposes all metrics combined (apiserver, kubelet, kube-proxy, kube-scheduler, kube-controller) on each metrics endpoint.
+  # Hence, we keep only relevant metrics for each control plane component endpoint.
+  # see https://github.com/k3s-io/k3s/issues/3619#issuecomment-1425852034
+  # FIXME: The strategy to keep only metrics used in particular component dashboards could be insufficient when a deeper
+  #  investigation is needed, using metrics that have been dropped.
+  #  Improve this logic or check the current state of k3s monitoring by the kube-prometheus-stack.
+  # Note: List of control plane node IPs (endpoints) should be overridden
+  # Get the K3d control plane node IPs e.g. as follows:
+  # $ kubectl get nodes -l node-role.kubernetes.io/control-plane=true -o jsonpath='{.items[*].status.addresses[?(@.type=="InternalIP")].address}' | tr ' ' ',' | sed 's/^/[&/;s/$/]/'
+  kubeApiServer:
+    serviceMonitor:
+      metricRelabelings:
+        - sourceLabels: [ "__name__" ]
+          regex: "(apiserver|workqueue|rest_client|process|go)_(.+)"
+          action: keep
+  kubelet:
+    serviceMonitor:
+      metricRelabelings:
+        - sourceLabels: [ "__name__" ]
+          regex: "(kubelet|storage|rest_client|process|go)_(.+)"
+          action: keep
+  kubeEtcd:
+    endpoints:
+      - REPLACE_ME
+    serviceMonitor:
+      metricRelabelings:
+        - sourceLabels: [ "__name__" ]
+          regex: "(etcd|grpc|rest_client|process|go)_(.+)"
+          action: keep
+  kubeProxy:
+    endpoints:
+      - REPLACE_ME
+    serviceMonitor:
+      metricRelabelings:
+        - sourceLabels: [ "__name__" ]
+          regex: "(kubeproxy|rest_client|process|go)_(.+)"
+          action: keep
+  kubeControllerManager:
+    endpoints:
+      - REPLACE_ME
+    serviceMonitor:
+      metricRelabelings:
+        - sourceLabels: [ "__name__" ]
+          regex: "(workqueue|rest_client|process|go)_(.+)"
+          action: keep
+  kubeScheduler:
+    endpoints:
+      - REPLACE_ME
+    serviceMonitor:
+      metricRelabelings:
+        - sourceLabels: ["__name__"]
+          regex: "(scheduler|rest_client|process|go)_(.+)"
+          action: keep

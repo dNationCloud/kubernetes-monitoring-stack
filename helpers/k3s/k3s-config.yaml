@@ -1,0 +1,41 @@
+apiVersion: k3d.io/v1alpha5
+kind: Simple
+servers: 3
+agents: 1
+ports:
+  - port: 30000:30000  # Grafana UI
+    nodeFilters:
+      - server:*
+  - port: 30001:30001  # Alertmanager UI
+    nodeFilters:
+      - server:*
+  - port: 30002:30002  # Prometheus UI
+    nodeFilters:
+      - server:*
+options:
+  k3s:
+    extraArgs:
+      - arg: --etcd-expose-metrics=true
+        nodeFilters:
+          - server:*
+      - arg: --kube-controller-manager-arg=bind-address=0.0.0.0
+        nodeFilters:
+          - server:*
+      - arg: --kube-controller-manager-arg=authorization-always-allow-paths=/healthz,/readyz,/livez,/metrics
+        nodeFilters:
+          - server:*
+      - arg: --kube-controller-manager-arg=secure-port=10257
+        nodeFilters:
+          - server:*
+      - arg: --kube-scheduler-arg=bind-address=0.0.0.0
+        nodeFilters:
+          - server:*
+      - arg: --kube-scheduler-arg=authorization-always-allow-paths=/healthz,/readyz,/livez,/metrics
+        nodeFilters:
+          - server:*
+      - arg: --kube-scheduler-arg=secure-port=10259
+        nodeFilters:
+          - server:*
+      - arg: --kube-proxy-arg=metrics-bind-address=0.0.0.0:10249
+        nodeFilters:
+          - server:*
