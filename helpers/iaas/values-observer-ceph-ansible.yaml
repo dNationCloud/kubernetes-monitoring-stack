@@ -1,0 +1,71 @@
+kube-prometheus-stack:
+  prometheus:
+    prometheusSpec:
+      additionalScrapeConfigs:
+        - job_name: ceph
+          static_configs:
+            - targets:
+              - <REPLACE_ME>
+        - job_name: ceph-exporter
+          static_configs:
+            - targets:
+              - <REPLACE_ME>
+  grafana:
+    dashboardProviders:
+      dashboardprovidersceph.yaml:
+        apiVersion: 1
+        providers:
+        - name: ceph
+          folder: 'Ceph'
+          type: file
+          disableDeletion: false
+          editable: true
+          options:
+            path: /var/lib/grafana/dashboards/ceph
+    dashboards:
+      ceph:
+        # Dashboards created within the Rook project: https://rook.io/docs/rook/latest-release/Storage-Configuration/Monitoring/ceph-monitoring/?h=grafa#grafana-dashboards
+        # These are a solid starting point for Ceph metrics visualization. If you want to see more dashboards, uncomment and use the ceph-mixin dashboards below.
+        ceph-cluster-overview:
+          gnetId: 2842
+          revision: 17
+        ceph-osd-single:
+          gnetId: 5336
+          revision: 9
+        ceph-pools:
+          gnetId: 5342
+          revision: 9
+          # Uncomment if you want to use ceph-mixin dashboards.
+          # Find the source at https://github.com/ceph/ceph-mixins and built at https://github.com/ceph/ceph/tree/main/monitoring/ceph-mixin#grafana-dashboards-for-ceph
+#        ceph-cluster-advanced:
+#            url: https://raw.githubusercontent.com/ceph/ceph/main/monitoring/ceph-mixin/dashboards_out/ceph-cluster-advanced.json
+#        ceph-cluster:
+#            url: https://raw.githubusercontent.com/ceph/ceph/main/monitoring/ceph-mixin/dashboards_out/ceph-cluster.json
+#        ceph-fs-overview:
+#            url: https://raw.githubusercontent.com/ceph/ceph/main/monitoring/ceph-mixin/dashboards_out/cephfs-overview.json
+#        ceph-host-details:
+#            url: https://raw.githubusercontent.com/ceph/ceph/main/monitoring/ceph-mixin/dashboards_out/host-details.json
+#        ceph-hosts-overview:
+#            url: https://raw.githubusercontent.com/ceph/ceph/main/monitoring/ceph-mixin/dashboards_out/hosts-overview.json
+#        ceph-multi-cluster-overview:
+#            url: https://raw.githubusercontent.com/ceph/ceph/main/monitoring/ceph-mixin/dashboards_out/multi-cluster-overview.json
+#        ceph-osd-device-details:
+#            url: https://raw.githubusercontent.com/ceph/ceph/main/monitoring/ceph-mixin/dashboards_out/osd-device-details.json
+#        ceph-osds-overview:
+#            url: https://raw.githubusercontent.com/ceph/ceph/main/monitoring/ceph-mixin/dashboards_out/osds-overview.json
+#        ceph-pool-detail:
+#            url: https://raw.githubusercontent.com/ceph/ceph/main/monitoring/ceph-mixin/dashboards_out/pool-detail.json
+#        ceph-pool-overview:
+#            url: https://raw.githubusercontent.com/ceph/ceph/main/monitoring/ceph-mixin/dashboards_out/pool-overview.json
+#        ceph-radosgw-detail:
+#            url: https://raw.githubusercontent.com/ceph/ceph/main/monitoring/ceph-mixin/dashboards_out/radosgw-detail.json
+#        ceph-radosgw-overview:
+#            url: https://raw.githubusercontent.com/ceph/ceph/main/monitoring/ceph-mixin/dashboards_out/radosgw-overview.json
+#        ceph-radosgw-sync-overview:
+#            url: https://raw.githubusercontent.com/ceph/ceph/main/monitoring/ceph-mixin/dashboards_out/radosgw-sync-overview.json
+#        ceph-rbd-details:
+#            url: https://raw.githubusercontent.com/ceph/ceph/main/monitoring/ceph-mixin/dashboards_out/rbd-details.json
+#        ceph-rbd-overview:
+#            url: https://raw.githubusercontent.com/ceph/ceph/main/monitoring/ceph-mixin/dashboards_out/rbd-overview.json
+#        ceph-rgw-s3-analytics:
+#            url: https://raw.githubusercontent.com/ceph/ceph/main/monitoring/ceph-mixin/dashboards_out/rgw-s3-analytics.json

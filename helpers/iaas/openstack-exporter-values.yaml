@@ -1,0 +1,26 @@
+---
+## Disable OpenStack exporter multicloud mode
+##
+multicloud:
+  enabled: false
+
+##  Label OpenStack exporter ServiceMonitor (and others) resource.
+##  This ensures that Kubernetes monitoring's Prometheus discovers the OpenStack exporter ServiceMonitor
+##
+commonLabels:
+  release: kubernetes-monitoring-servicemonitor
+
+## OpenStack API access configuration
+## Doc: https://github.com/openstack-exporter/openstack-exporter#openstack-configuration
+##
+clouds_yaml_config: |
+  clouds.yaml: |
+      clouds:
+        default:
+          auth:
+            auth_url: <REPLACE_ME>
+            application_credential_id: <REPLACE_ME>
+            application_credential_secret: <REPLACE_ME>
+          region_name: <REPLACE_ME>
+          identity_api_version: 3
+          auth_type: "v3applicationcredential"
