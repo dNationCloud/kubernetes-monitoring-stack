@@ -13,6 +13,7 @@
 # limitations under the License.
 #
 
+{{- if (not (empty .Values.grafanaDatasourcesAsConfigMap)) }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -28,3 +29,4 @@ data:
     {{- range $_, $datasource := .Values.grafanaDatasourcesAsConfigMap -}}
       {{- tpl (toYaml $datasource) $ | nindent 4 -}}
     {{- end -}}
+{{- end }}
