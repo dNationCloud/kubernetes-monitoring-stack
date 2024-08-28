@@ -9,6 +9,8 @@ thanosStorage:
 loki:
   enabled: false
 
+grafanaDatasourcesAsConfigMap: null
+
 thanos:
   enabled: true
   existingObjstoreSecret: thanos-objstore-config
