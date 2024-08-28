@@ -21,4 +21,5 @@ chart-repos:
 - prometheus=https://prometheus-community.github.io/helm-charts
 - grafana=https://grafana.github.io/helm-charts
 - dnation=https://dnationcloud.github.io/helm-hub
+- bitnami=https://charts.bitnami.com/bitnami
 helm-extra-args: --timeout 600s
