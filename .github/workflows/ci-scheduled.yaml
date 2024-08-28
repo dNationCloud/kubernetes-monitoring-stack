@@ -16,12 +16,9 @@
 name: Test Chart with k8s versions
 
 on:
-  pull_request:  # Add this to trigger on PRs
-    branches:
-      - main  # Specify the target branch for the PR
-#  schedule:
-#    # Run every 2 weeks
-#    - cron: "0 0 1,15 * *"
+  schedule:
+   # Run every 2 weeks
+   - cron: "0 0 1,15 * *"
 
 jobs:
   test-chart:
@@ -68,6 +65,7 @@ jobs:
         echo ${{ steps.semver.outputs.version }}
         wget https://dnationcloud.github.io/helm-hub/dnation-kubernetes-monitoring-stack-${{ steps.highest-patch.outputs.version }}.tgz
         tar -xvf dnation-kubernetes-monitoring-stack-${{ steps.highest-patch.outputs.version }}.tgz
+        mv dnation-kubernetes-monitoring-stack dnation-monitoring
 
     - name: Create kind ${{ matrix.k8s-version }} cluster
       uses: helm/kind-action@v1.10.0
@@ -80,4 +78,4 @@ jobs:
 
     - name: Run chart-testing (install)
       run: |
-        ct install --helm-extra-set-args "--set loki.ci=true" --config .github/ct-scheduled.yaml
+        ct install --config .github/ct-scheduled.yaml --helm-extra-set-args "--set loki.ci=true"
