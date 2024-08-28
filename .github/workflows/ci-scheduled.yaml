@@ -16,9 +16,12 @@
 name: Test Chart with k8s versions
 
 on:
- schedule:
-   # Run every 2 weeks
-   - cron: "0 0 1,15 * *"
+  pull_request:  # Add this to trigger on PRs
+    branches:
+      - main  # Specify the target branch for the PR
+#  schedule:
+#    # Run every 2 weeks
+#    - cron: "0 0 1,15 * *"
 
 jobs:
   test-chart:
