@@ -1,0 +1,10 @@
+## An examplesecret for Openstack internal API certs
+## deploy to the same namespace as k8s-monitoring-stack
+apiVersion: v1
+data:
+  ca.crt: <CA CERT BASE64>
+  tls.crt: <CERT BASE64>
+  tls.key: <KEY BASE64>
+kind: Secret
+metadata:
+  name: openstack-ca

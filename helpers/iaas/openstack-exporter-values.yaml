@@ -1,26 +1,47 @@
 ---
-## Disable OpenStack exporter multicloud mode
-##
-multicloud:
-  enabled: false
+prometheus-openstack-exporter:
+  enabled: true
 
 ##  Label OpenStack exporter ServiceMonitor (and others) resource.
 ##  This ensures that Kubernetes monitoring's Prometheus discovers the OpenStack exporter ServiceMonitor
 ##
-commonLabels:
-  release: kubernetes-monitoring-servicemonitor
+  commonLabels:
+    release: monitoring
+
+## Optional: use public endpoint type e.g. if you want to test connectivity
+##    WARNING: if you use Grafana dashboard https://grafana.com/grafana/dashboards/21085.
+##      it will be incomplete
+##
+#   endpoint_type: "public"
+
+## Optional: Mittigate timeouts on Prometheus
+#   serviceMonitor:
+#     scrapeTimeout: "1m"
 
 ## OpenStack API access configuration
 ## Doc: https://github.com/openstack-exporter/openstack-exporter#openstack-configuration
 ##
-clouds_yaml_config: |
-  clouds.yaml: |
-      clouds:
-        default:
-          auth:
-            auth_url: <REPLACE_ME>
-            application_credential_id: <REPLACE_ME>
-            application_credential_secret: <REPLACE_ME>
-          region_name: <REPLACE_ME>
-          identity_api_version: 3
-          auth_type: "v3applicationcredential"
+
+  clouds_yaml_config: |
+    clouds.yaml: |
+        clouds:
+          default:
+            auth:
+              auth_url: <REPLACE_ME>
+              application_credential_id: <REPLACE_ME>
+              application_credential_secret: <REPLACE_ME>
+            region_name: <REPLACE_ME>
+            identity_api_version: 3
+            auth_type: "v3applicationcredential"
+            key: "/etc/ssl/certs/openstack-ca/tls.key"
+            cert: "/etc/ssl/certs/openstack-ca/tls.crt"
+            cacert: "/etc/ssl/certs/openstack-ca/ca.crt"
+## Secret containg SSL certificates for internal openstack API
+  extraVolumes:
+  - name: openstack-ca
+    secret:
+      secretName: openstack-ca
+
+  extraVolumeMounts:
+  - mountPath: /etc/ssl/certs/openstack-ca
+    name: openstack-ca

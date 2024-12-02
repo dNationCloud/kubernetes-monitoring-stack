@@ -668,3 +668,13 @@ loki-distributed:
       aws:
         s3: "s3://access_key:secret_access_key@custom_endpoint/bucket_name"
         s3forcepathstyle: true  # set to 'false' to enable virtual-hosted-style URLs
+
+prometheus-openstack-exporter:
+
+  ## Set to to true if you want to use Openstack exporter
+  enabled: false
+
+  ## Disable OpenStack exporter multicloud mode
+  ##
+  multicloud:
+    enabled: false
