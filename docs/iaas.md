@@ -29,25 +29,71 @@ the [k3s guide](k3s.md).
 
 #### Prometheus metrics and alerts
 
-The [OpenStack exporter for Prometheus](https://github.com/openstack-exporter) could be deployed using the [openstack-exporter-helm-chart](https://github.com/SovereignCloudStack/openstack-exporter-helm-charts).
+The [OpenStack exporter for Prometheus](https://github.com/openstack-exporter) can be enabled as a subchart, see [openstack-exporter-helm-chart](https://github.com/SovereignCloudStack/openstack-exporter-helm-charts).
+
 This exporter contains a bunch of [Prometheus alerts and rules](https://github.com/SovereignCloudStack/openstack-exporter-helm-charts/blob/master/charts/prometheus-openstack-exporter/templates/prometheusrule.yaml)
 that are deployed together with the exporter.
 Visit the `helpers/iaas/openstack-exporter-values.yaml` file to validate the Helm configuration options.
 Ensure valid OpenStack API credentials are set under the `clouds_yaml_config` section. This **MUST** be overridden!
 
-```bash
-helm upgrade --install prometheus-openstack-exporter oci://registry.scs.community/openstack-exporter/prometheus-openstack-exporter \
-  --version 0.4.5 \
-  -f helpers/iaas/openstack-exporter-values.yaml # --set "endpoint_type=public" --set "serviceMonitor.scrapeTimeout=1m"
-```
-
 Tip: If you want to test the exporter basic functionality with **public** OpenStack API, configure `endpoint_type`
-to `public` (`--set "endpoint_type=public"`). Note that configuring `endpoint_type` as `public` will result in
+to `public`. Note that configuring `endpoint_type` as `public` will result in
 incomplete functionality for the Grafana dashboard.
 
 Tip: Requesting and collecting metrics from the OpenStack API can be time-consuming, especially if the API is not
 performing well. In such cases, you may observe timeouts on the Prometheus server when it tries to fetch OpenStack
-metrics. To mitigate this, consider increasing the scrape interval to e.g. 1 minute (`--set "serviceMonitor.scrapeTimeout=1m"`).
+metrics. To mitigate this, consider increasing the scrape interval to e.g. 1 minute.
+
+#### SSL Certificates
+If you use a private CA to communicate with Openstack API, a secret containing certificates must be deployed in the same namespace
+as dNation k8s Monitoring Stack. 
+```yaml
+apiVersion: v1
+data:
+  ca.crt: <CA CERT BASE64>
+  tls.crt: <CERT BASE64>
+  tls.key: <KEY BASE64>
+kind: Secret
+metadata:
+  name: openstack-ca
+
+```
+This secret must be then mounted by openstack exporter, see example values below.
+
+```yaml
+# Example values.yaml for enabling openstack exporter
+prometheus-openstack-exporter:
+  enabled: true
+  commonLabels:
+    release: monitoring
+  serviceMonitor:
+    scrapeTimeout: "1m"
+  # endpoint_type: "public"
+  clouds_yaml_config: |
+    clouds.yaml: |
+        clouds:
+          default:
+            auth:
+            auth_url: <REPLACE_ME>
+            application_credential_id: <REPLACE_ME>
+            application_credential_secret: <REPLACE_ME>
+            region_name: <REPLACE_ME>
+            identity_api_version: 3
+            auth_type: "v3applicationcredential"
+            key: "/etc/ssl/certs/openstack-ca/tls.key"
+            cert: "/etc/ssl/certs/openstack-ca/tls.crt"
+            cacert: "/etc/ssl/certs/openstack-ca/ca.crt"
+## Secret containg SSL certificates for internal openstack API
+  extraVolumes:
+  - name: openstack-ca
+    secret:
+      secretName: openstack-ca
+
+  extraVolumeMounts:
+  - mountPath: /etc/ssl/certs/openstack-ca
+    name: openstack-ca
+```
+
 
 #### Grafana dashboards
 
