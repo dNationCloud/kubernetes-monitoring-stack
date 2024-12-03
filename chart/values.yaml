@@ -110,6 +110,12 @@ kube-prometheus-stack:
     additionalRuleLabels:
       alertgroup: Cluster
 
+    ## TODO: Remove additionalRuleGroupLabels once the issue will be resolved
+    ## see https://github.com/prometheus-community/helm-charts/issues/3396
+    additionalRuleGroupLabels:
+      kubeApiserverAvailability:
+        alertgroup: null
+
   ## Deploy a Prometheus instance
   ##
   prometheus:

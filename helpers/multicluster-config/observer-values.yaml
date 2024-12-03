@@ -53,6 +53,8 @@ thanos:
   queryFrontend:
     enabled: true
   query:
+    networkPolicy:
+      enabled: false
     replicaLabel:
       - prometheus_replica
     dnsDiscovery:
