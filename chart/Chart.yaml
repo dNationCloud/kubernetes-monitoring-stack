@@ -15,7 +15,7 @@
 
 apiVersion: v2
 name: dnation-kubernetes-monitoring-stack
-version: 3.8.0
+version: 3.8.1
 appVersion: 2.7.1  # dnation-kubernetes-monitoring
 description: An umbrella helm chart for Kubernetes monitoring based on kube-prometheus-stack, thanos, loki, promtail and dnation-kubernetes-monitoring
 keywords:
@@ -66,7 +66,7 @@ dependencies:
   repository: https://prometheus-community.github.io/helm-charts
   condition: prometheus-blackbox-exporter.enabled
 - name: prometheus-openstack-exporter
-  repository: oci://registry.scs.community/openstack-exporter
+  repository: oci://registry.dnation.cloud/openstack-exporter
   version: "0.4.5"
   condition: prometheus-openstack-exporter.enabled
 icon: https://cdn.ifne.eu/public/icons/dnation_k8sm8g.png
