@@ -220,6 +220,14 @@ kube-prometheus-stack:
   ## Deploy a Grafana instance
   ##
   grafana:
+
+    ## Security patch CVE-2025-4123 https://grafana.com/security/security-advisories/cve-2025-4123/
+    ##
+    image:
+      registry: docker.io
+      repository: grafana/grafana
+      tag: "10.4.19-security-01"
+
     adminUser: "admin"
     adminPassword: "pass"
     ## Deploy default dashboards
