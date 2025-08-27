@@ -309,6 +309,8 @@ kube-prometheus-stack:
 ## ref: https://github.com/bitnami/charts/tree/main/bitnami/thanos
 ######################################################################################################################
 thanos:
+  image:
+    repository: bitnamilegacy/thanos
   enabled: true
   queryFrontend:
     enabled: false
