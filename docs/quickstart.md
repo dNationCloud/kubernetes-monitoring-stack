@@ -14,7 +14,8 @@ be installed and will monitor the Kubernetes cluster hosting it.
 
 ## Prerequisites
 
-- Kubernetes cluster - for production environment we recommend a Kubernetes cluster with at least 3 worker nodes and 4 GiB RAM per node or more
+- Kubernetes cluster - for production environment you must have a Kubernetes cluster with at least 3 worker nodes and 4 GiB RAM per node or more.
+- For a local setup, you need to have a total of 4 GiB RAM and 2 CPU cores as a minimum (with some headroom).
 - [kubectl](https://kubernetes.io/docs/reference/kubectl/)
 - [helm](https://helm.sh/)
 
@@ -26,7 +27,7 @@ various Kubernetes distributions, including vanilla Kubernetes, OKD, [K3s](./k3s
 For local testing purposes, we recommend using [KinD](https://kind.sigs.k8s.io/docs/user/quick-start/) (Kubernetes in Docker) as follows:
 
 ```bash
-kind create cluster --config helpers/kind_cluster_config.yaml --image kindest/node:v1.30.0
+kind create cluster --config helpers/kind_cluster_config.yaml --image kindest/node:v1.34.0
 ```
 
 If you opt not to use KinD with the custom config we provided here, and prefer utilizing another Kubernetes cluster,
