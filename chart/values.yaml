@@ -492,6 +492,77 @@ loki:
     replicas: 0
   bloomGateway:
     replicas: 0
+
+######################################################################################################################
+##
+## Alloy sub-chart configuration
+##
+## ref: https://github.com/grafana/alloy/blob/main/operations/helm/charts/alloy/values.yaml
+## ref: https://grafana.com/docs/alloy/latest/set-up/install/kubernetes/
+######################################################################################################################
+alloy:
+  enabled: false
+  extraEnv:
+    - name: CLUSTER_NAME
+      value: observer-cluster
+  configMap:
+    content: |-
+      logging {
+        level  = "info"
+        format = "logfmt"
+      }
+
+      discovery.kubernetes "pods" {
+        role = "pod"
+      }
+
+      discovery.relabel "pod_logs" {
+        targets = discovery.kubernetes.pods.targets
+        rule {
+          source_labels = ["__meta_kubernetes_namespace"]
+          target_label  = "namespace"
+        }
+        rule {
+          source_labels = ["__meta_kubernetes_pod_name"]
+          target_label  = "pod"
+        }
+        rule {
+          source_labels = ["__meta_kubernetes_pod_container_name"]
+          target_label  = "container"
+        }
+        rule {
+          source_labels = ["__meta_kubernetes_pod_node_name"]
+          target_label  = "node"
+        }
+        rule {
+          action = "labelmap"
+          regex  = "__meta_kubernetes_pod_label_(.+)"
+        }
+        rule {
+          action = "labelmap"
+          regex  = "__meta_kubernetes_pod_annotation_(.+)"
+        }
+      }
+
+      loki.source.kubernetes "pods" {
+        targets    = discovery.relabel.pod_logs.output
+        forward_to = [loki.process.pods.receiver]
+      }
+
+      loki.process "pods" {
+        stage.cri {}
+        forward_to = [loki.write.loki.receiver]
+      }
+
+      loki.write "loki" {
+        endpoint {
+          url = "http://{{ .Release.Name }}-loki-gateway/loki/api/v1/push"
+        }
+        external_labels = {
+          cluster = sys.env("CLUSTER_NAME"),
+        }
+      }
+
 ######################################################################################################################
 ##
 ## Promtail sub-chart configuration
