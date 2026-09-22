@@ -5,14 +5,14 @@ ssl-exporter:
     create: false
     name: dnation-monitoring-ssl-exporter
 
-promtail:
+alloy:
   containerSecurityContext:
     privileged: true
     allowPrivilegeEscalation: true
   serviceAccount:
     create: false
     # Service account name must match service account created below
-    name: 'dnation-monitoring-promtail'
+    name: 'dnation-monitoring-alloy'
 
 dnation-kubernetes-monitoring:
   dnation-kubernetes-jsonnet-translator:
@@ -300,6 +300,6 @@ openshift:
     - dnation-monitoring-kube-state-metrics
     - dnation-monitoring-loki
     - dnation-monitoring-node-exporter
-    - dnation-monitoring-promtail
+    - dnation-monitoring-alloy
     - dnation-monitoring-thanos-query
     - dnation-monitoring-ssl-exporter

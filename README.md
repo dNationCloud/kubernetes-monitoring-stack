@@ -13,7 +13,7 @@ An umbrella helm chart for [dNation Kubernetes Monitoring](https://github.com/dN
 * [kube-prometheus-stack](https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack)
 * [thanos](https://github.com/bitnami/charts/tree/master/bitnami/thanos)
 * [loki](https://github.com/grafana/loki/tree/main/production/helm/loki)
-* [promtail](https://github.com/grafana/helm-charts/tree/main/charts/promtail)
+* [alloy](https://github.com/grafana/alloy/tree/main/operations/helm/charts/alloy)
 * [ssl-exporter](https://github.com/dNationCloud/ssl-exporter)  # optional
 * [prometheus-blackbox-exporter](https://github.com/prometheus-community/helm-charts/tree/main/charts/prometheus-blackbox-exporter)   # optional
 * [loki-distributed](https://github.com/grafana/helm-charts/tree/main/charts/loki-distributed)  # deprecated, see [loki](docs/loki.md)

@@ -8,7 +8,55 @@ located inside `helpers/multicluster-config/` directory. There are 2 files in to
 - `helpers/multicluster-config/workload-values.yaml` - contains config for installation of workload cluster(s)
 
 For `multi-cluster centralized logging` install monitoring on your workload cluster without Loki, set `loki.enabled: false`
-in [values.yaml](../chart/values.yaml) and also configure `promtail.config.lokiAddress` to send logs to your Loki instance.
+in [values.yaml](../chart/values.yaml) and also configure `alloy.alloy.configMap.content` to include block to send logs to your Loki instance.
+
+In following example, it is assumed that you have `Secret` with `username` and `password` data that holds basic authorization for Loki on central server.
+
+
+  ```yaml
+  alloy:
+    controller:
+      volumes:
+        extra:
+          - name: loki-auth
+            secret:
+              secretName: loki-auth
+    alloy:
+      mounts:
+        extra:
+          - name: loki-auth
+            mountPath: /etc/alloy/secrets
+            readOnly: true
+      configMap:
+        content: |-
+
+         .... omitted ...
+
+          local.file "loki_username" {
+            filename  = "/etc/alloy/secrets/username"
+          }
+
+          local.file "loki_password" {
+            filename  = "/etc/alloy/secrets/password"
+            is_secret = true
+          }
+
+          loki.write "loki" {
+            endpoint {
+              url = "https://ingress.domain.of.observer/loki/api/v1/push"
+
+              basic_auth {
+                username = local.file.loki_username.content
+                password = local.file.loki_password.content
+              }
+            }
+
+            external_labels = {
+              cluster = sys.env("CLUSTER_NAME"),
+            }
+          }
+   ```
+
 On your central cluster install it in classic way with `loki.enable: true`.
 
 ## Architecture

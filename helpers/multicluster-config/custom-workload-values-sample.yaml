@@ -11,11 +11,6 @@ thanosStorage:
       signature_version2: true
       part_size: 0
 
-loki-stack:
-  promtail:
-    extraArgs:
-      - -client.external-labels=cluster=workload-cluster
-
 thanos:
   global:
     storageClass: <storage-class>
