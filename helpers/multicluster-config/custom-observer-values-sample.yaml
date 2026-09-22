@@ -1,4 +1,4 @@
-# !IMPORTANT: each cluster must have prometheus and promtail external label 'cluster' with unique value.
+# !IMPORTANT: each cluster must have prometheus and alloy external label 'cluster' with unique value.
 # This will be used as cluster discriminator when metrics and logs are aggregated on observer cluster.
 
 thanosStorage:
@@ -24,13 +24,6 @@ thanosQueryEnvoySidecar:
        certificate_chain: /certs/tls.crt
        private_key: /certs/tls.key
        trusted_ca: /certs/ca.crt
-
-promtail:
-  config:
-    client:
-      external_labels:
-        cluster: observer-cluster
-    lokiAddress: "http://{{ .Release.Name }}-loki-gateway/loki/api/v1/push"
 
 thanos:
   global:

@@ -1,7 +1,7 @@
 # Disable log stack (out of the scope of this guide)
 loki:
   enabled: false
-promtail:
+alloy:
   enabled: false
 dnation-kubernetes-monitoring:
   grafanaDashboards:

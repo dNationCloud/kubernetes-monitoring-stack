@@ -40,18 +40,18 @@ openshift:
 It is required that all default service accounts are disabled. New service accounts must be then created and linked in values:
 
 ```yaml
-# Example setting for 'promtail' service account
+# Example setting for 'alloy' service account
 # Do this with all service accounts used by kubernetes-monitoring-stack
-promtail:
+alloy:
     serviceAccount:
     create: false
     # Service account name must match service account created below
-    name: 'dnation-monitoring-promtail'
+    name: 'dnation-monitoring-alloy'
 # ...
 openshift:
   serviceAccounts:
     # ...
-    - dnation-monitoring-promtail
+    - dnation-monitoring-alloy
     # ...
 ```
 

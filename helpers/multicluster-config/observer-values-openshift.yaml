@@ -172,7 +172,7 @@ openshift:
   - dnation-monitoring-kube-state-metrics
   - dnation-monitoring-loki
   - dnation-monitoring-node-exporter
-  - dnation-monitoring-promtail
+  - dnation-monitoring-alloy
   - dnation-monitoring-thanos-bucketweb
   - dnation-monitoring-thanos-compactor
   - dnation-monitoring-thanos-query

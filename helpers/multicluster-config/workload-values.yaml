@@ -5,7 +5,7 @@ thanosStorage:
   # More details about supported storage types and config options can be found here: https://thanos.io/tip/thanos/storage.md/
   config: ""
 
-#On workload cluster only promtail is installed
+#On workload cluster only alloy is installed
 loki:
   enabled: false
 

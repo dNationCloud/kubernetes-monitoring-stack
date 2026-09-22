@@ -501,7 +501,7 @@ loki:
 ## ref: https://grafana.com/docs/alloy/latest/set-up/install/kubernetes/
 ######################################################################################################################
 alloy:
-  enabled: false
+  enabled: true
   extraEnv:
     - name: CLUSTER_NAME
       value: observer-cluster
@@ -535,12 +535,11 @@ alloy:
           target_label  = "node"
         }
         rule {
-          action = "labelmap"
-          regex  = "__meta_kubernetes_pod_label_(.+)"
-        }
-        rule {
-          action = "labelmap"
-          regex  = "__meta_kubernetes_pod_annotation_(.+)"
+          source_labels = [
+            "__meta_kubernetes_pod_label_app_kubernetes_io_name",
+          ]
+          regex  = "alloy"
+          action = "drop"
         }
       }
 
@@ -558,30 +557,12 @@ alloy:
         endpoint {
           url = "http://{{ .Release.Name }}-loki-gateway/loki/api/v1/push"
         }
+
         external_labels = {
           cluster = sys.env("CLUSTER_NAME"),
         }
       }
 
-######################################################################################################################
-##
-## Promtail sub-chart configuration
-##
-## ref: https://github.com/grafana/helm-charts/tree/main/charts/promtail
-## Note: if you observe failing promtail container due to "too many open files" error, check
-##  the following issue https://github.com/grafana/loki/issues/1153 and increase the number of inotify
-##  resources, e.g. see  https://www.suse.com/support/kb/doc/?id=000020048
-######################################################################################################################
-promtail:
-  enabled: true
-  config:
-    clients:
-    - url: http://{{ .Release.Name }}-loki-gateway/loki/api/v1/push
-      tenant_id: 1
-  # !IMPORTANT: each cluster must have promtail external label 'cluster' with unique value.
-  # This will be used as cluster discriminator when logs are aggregated on observer cluster.
-  extraArgs:
-    - -client.external-labels=cluster=observer-cluster
 
 ######################################################################################################################
 ##
