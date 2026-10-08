@@ -15,7 +15,7 @@
 
 apiVersion: v2
 name: dnation-kubernetes-monitoring-stack
-version: 5.0.1
+version: 5.0.2
 appVersion: 3.0.3  # dnation-kubernetes-monitoring
 description: An umbrella helm chart for Kubernetes monitoring based on kube-prometheus-stack, thanos, loki, alloy and dnation-kubernetes-monitoring
 keywords:
@@ -54,7 +54,7 @@ dependencies:
   repository: https://grafana.github.io/helm-charts
   condition: alloy.enabled
 - name: dnation-kubernetes-monitoring
-  version: "3.0.2"
+  version: "3.0.3"
   repository: https://dnationcloud.github.io/helm-hub
   condition: dnation-kubernetes-monitoring.enabled
 - name: ssl-exporter
