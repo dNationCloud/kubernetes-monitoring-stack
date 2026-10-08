@@ -452,6 +452,15 @@ loki:
   ##
   minio:
     enabled: true
+    image:
+      repository: docker.io/pgsty/silo
+      tag: RELEASE.2026-09-03T13-18-01Z
+      pullPolicy: IfNotPresent
+    mcImage:
+      repository: docker.io/pgsty/mc
+      tag: RELEASE.2026-09-13T00-00-00Z
+      pullPolicy: IfNotPresent
+    users: []
   ## Monitoring section has been deprecated by the loki project.
   ## ref: https://github.com/grafana/loki/blob/main/production/helm/loki/values.yaml#L3209
   ## As a replacement Loki suggests https://github.com/grafana/meta-monitoring-chart helm chart, but this chart can not
