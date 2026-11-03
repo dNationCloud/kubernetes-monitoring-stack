@@ -23,7 +23,7 @@ kube-prometheus-stack:
       - --collector.textfile.directory=/tmp/textfile_collector
     sidecars:
     - name: gpu-usage
-      image: ghcr.io/dnationcloud/vfio-exporter:latest
+      image: ghcr.io/dnationcloud/vfio-exporter:0.2.0
     containerSecurityContext:
       privileged: true
     securityContext:
@@ -37,4 +37,9 @@ kube-prometheus-stack:
         mountPath: /dev/vfio
         hostPath: /dev/vfio
         type: DirectoryOrCreate
+        readOnly: true
+      - name: run-libvirt
+        mountPath: /run/libvirt
+        hostPath: /run/libvirt
+        type: Directory
         readOnly: true
