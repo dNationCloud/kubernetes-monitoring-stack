@@ -1,7 +1,7 @@
 FROM alpine:latest
 
-# Install psmisc to get the 'fuser' utility
-RUN apk add --no-cache psmisc
+# Install libvirt-client to get the 'virsh' utility
+RUN apk add --no-cache libvirt-client
 
 # Copy the script into the container and make it executable
 COPY monitor.sh /monitor.sh
