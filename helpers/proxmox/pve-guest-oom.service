@@ -1,0 +1,8 @@
+[Unit]
+Description=Export per-guest OOM kill counters for node_exporter
+Documentation=https://github.com/dNationCloud/kubernetes-monitoring
+
+[Service]
+Type=oneshot
+User=root
+ExecStart=/usr/local/bin/pve-guest-oom.sh

@@ -1,0 +1,11 @@
+[Unit]
+Description=Refresh corosync health metrics
+
+[Timer]
+OnBootSec=1min
+OnUnitActiveSec=60s
+AccuracySec=5s
+Unit=pve-corosync.service
+
+[Install]
+WantedBy=timers.target

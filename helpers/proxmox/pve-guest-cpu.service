@@ -1,0 +1,16 @@
+[Unit]
+Description=Export per-guest CPU time per physical CPU for node_exporter
+Documentation=https://github.com/dNationCloud/kubernetes-monitoring
+
+[Service]
+Type=simple
+User=root
+ExecStart=/usr/local/bin/pve-guest-cpu.sh
+# Counters restart from 0 with the service; without the file node_exporter
+# does not keep showing the last values while it is down.
+ExecStopPost=/bin/rm -f /var/lib/node_exporter/textfile/pve_guest_cpu.prom
+Restart=always
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target
