@@ -1,0 +1,11 @@
+[Unit]
+Description=Refresh per-guest OOM kill counters
+
+[Timer]
+OnBootSec=1min
+OnUnitActiveSec=60s
+AccuracySec=5s
+Unit=pve-guest-oom.service
+
+[Install]
+WantedBy=timers.target
